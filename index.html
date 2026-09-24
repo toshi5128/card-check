@@ -77,6 +77,39 @@ th{color:var(--t2);font-weight:600;font-size:12px}td.r,th.r{text-align:right;fon
 .catbar .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.catbar .a{text-align:right;font-variant-numeric:tabular-nums}
 .bar{display:flex;height:10px;border-radius:4px;overflow:hidden;background:var(--track)}
 .disclaimer{font-size:12px;color:var(--t3);margin-top:18px;text-align:center}
+.tile .s{font-size:12px;color:var(--t3)}
+.up{color:#d0402f}.dn{color:#1b8a5a}
+.split{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-top:10px}
+.pts{margin:0;padding-left:18px;font-size:14px}.pts li{margin:6px 0}.pts li.warnli::marker{content:"⚠ "}
+.legend{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--t2);margin-bottom:8px;flex-wrap:wrap}
+.catrow{display:grid;grid-template-columns:120px 1fr 84px;gap:8px;align-items:center;font-size:13px;padding:6px 4px;border-radius:6px;cursor:pointer}
+.catrow:hover,.catrow.sel{background:var(--track)}
+.catrow .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.catrow .a{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar2{display:flex;gap:2px;height:12px}.bar2 span{height:100%}.bar2 span:first-child{border-radius:4px 0 0 4px}.bar2 span:last-child{border-radius:0 4px 4px 0}.bar2 span:only-child{border-radius:4px}
+.catdetail{background:var(--track);border-radius:8px;padding:8px 10px;margin:2px 0 8px}
+.catdetail table td{border-bottom-color:var(--line);font-size:12px;padding:4px 2px}
+.mini4{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mini4 .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px;white-space:nowrap}.mini4 .s{font-size:11px;color:var(--t3)}
+.action{cursor:pointer;border-color:var(--warn);background:var(--warnbg);font-size:14px}.action .go{margin-top:6px;font-weight:700;color:var(--warn)}
+.bigcard .bm{font-size:20px;font-weight:700;margin-top:6px;line-height:1.35}.bigcard .ba{font-size:30px;font-weight:800;margin:2px 0 6px}
+.bigcard .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.explain{background:var(--track);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--t2);margin-top:12px}
+.bigbtns{display:grid;gap:10px;margin-top:14px}
+.bigbtns button{padding:14px 10px;font-size:16px;font-weight:700;border-radius:12px}
+.b-work{background:var(--j-expense-bg);color:var(--j-expense);border-color:var(--j-expense)}
+.b-priv{background:var(--j-private-bg);color:var(--t1)}
+.b-split{background:var(--j-split-bg);color:var(--j-split)}
+.b-ask{background:var(--surface);color:var(--t2)}
+.progress{height:8px;background:var(--track);border-radius:4px;overflow:hidden;margin-top:10px}.progress span{display:block;height:100%;background:var(--ok);border-radius:4px}
+.done{text-align:center;font-size:18px;font-weight:700;padding:28px 16px}
+.subtabs{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}.subtabs button{flex:1;font-size:13px}.subtabs button.on{background:var(--t1);color:var(--bg);border-color:var(--t1);font-weight:700}
+.tbl.wide{overflow:auto;max-height:none}.tbl.wide table{font-size:12px}.tbl.wide th,.tbl.wide td{white-space:nowrap;padding:6px 3px}.tbl.wide td:first-child{white-space:normal;min-width:6.5em;position:sticky;left:0;background:var(--surface)}
+.sumrow{padding:10px 0;border-bottom:1px solid var(--line)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;font-size:13px}.grid4 .num{font-weight:700;margin-top:2px}
+.principle{border-left:4px solid var(--ok)}
+.guiderow{padding:8px 0;border-bottom:1px solid var(--line)}.guiderow:last-child{border-bottom:none}.gj{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.learn{background:var(--track);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px;display:grid;gap:4px}
+.nav .ni{position:relative;display:inline-flex}.badge{position:absolute;top:-6px;left:14px;background:var(--s2);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:0 5px;line-height:16px;min-width:16px;text-align:center}
+@media(max-width:520px){.grid4{grid-template-columns:1fr 1fr}.mini4 .v{font-size:15px}.catrow{grid-template-columns:118px 1fr 76px;gap:6px}}
 @media(max-width:520px){.tiles{grid-template-columns:1fr 1fr;gap:8px}.tiles .tile:first-child{grid-column:1/-1}.tile{padding:10px 12px}.tile .v{font-size:19px}.catbar{grid-template-columns:96px 1fr 76px}}
 </style>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -183,13 +216,13 @@ function cardParseStatement(pages){
 }
 </script>
 <script type="text/babel" data-presets="react">
-const APP_VERSION = "2026-09-25-v0.3-install";
+const APP_VERSION = "2026-09-25-v0.4-phase2";
 const SB_URL = "https://ckcykbvislsjwvkizkqc.supabase.co";
 const SB_KEY = "sb_publishable_5kDZMBvSMk2Cu8qz8IP9CQ_qWsN1C13"; // 公開用キー。データはRLSで守る
 const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "card-check-auth" } });
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-const { useState, useEffect, useMemo, useCallback } = React;
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
 const HOLDERS = { toshi: { name: "敏徳", color: "var(--s1)" }, momoe: { name: "萌々恵", color: "var(--s2)" } };
 const CATEGORY_GROUPS = [
@@ -206,27 +239,78 @@ const JUDGMENTS = {
   split:   { label: "一部だけ経費（按分）", short: "按分" },
   check:   { label: "要確認（使い道による）", short: "要確認" },
 };
-const yen = n => (n < 0 ? "−" : "") + Math.abs(n).toLocaleString("ja-JP") + "円";
+// カテゴリごとの既定の判定 [敏徳, 萌々恵] と、画面に出す説明（引継書6章）
+const CAT_RULE = {
+  "IT・サブスク": ["expense", "check", "仕事で使うソフトやサービスは経費。個人の音楽・ゲーム・アプリ課金は私用。"],
+  "通信費": ["split", "private", "仕事でも使うスマホは一部が経費。家族のスマホや自宅のネットは基本は私用。"],
+  "キャリア決済（ドコモ）": ["check", "check", "d払いやキャリア決済をまとめた金額。中身が分かるまで判断できない。dアカウントの明細で確認を。"],
+  "ガソリン": ["expense", "check", "物件を見に行く・お客さんに会うなど、仕事の移動なら経費。家族の用事や遊びは私用。"],
+  "高速・駐車場": ["expense", "check", "物件を見に行く・お客さんに会うなど、仕事の移動なら経費。家族の用事や遊びは私用。"],
+  "車の部品・用品": ["check", "check", "仕事で使う車のものなら経費。"],
+  "旅行（移動・宿）": ["check", "check", "仕事の出張・物件調査なら経費。家族旅行や帰省は私用。"],
+  "電車・タクシー": ["check", "check", "仕事の移動なら経費。"],
+  "保険": ["check", "check", "仕事の車の保険なら経費。個人の生命保険などは私用。"],
+  "光熱費": ["split", "private", "自宅を事務所としても使っていれば一部が経費。ウォーターサーバーなど家庭用は私用。"],
+  "役所手数料": ["expense", "check", "物件調査のための証明書や謄本なら経費。"],
+  "外食": ["check", "check", "仕事相手との食事や打ち合わせなら経費。「誰と・何のため」をメモに書く。家族だけの食事は私用。"],
+  "ホームセンター・雑貨": ["check", "check", "事務所の備品や物件の修繕・清掃用なら経費。家のものは私用。"],
+  "ネット通販": ["check", "check", "事務所の備品や物件の修繕・清掃用なら経費。家のものは私用。"],
+  "食料品（スーパー）": ["check", "private", "家の食事や日用品は経費にならない。"],
+  "食料品（お米・食材通販）": ["check", "private", "家の食事や日用品は経費にならない。"],
+  "コンビニ・日用品": ["check", "private", "家の食事や日用品は経費にならない。"],
+  "ドラッグストア": ["check", "private", "家の食事や日用品は経費にならない。"],
+  "衣類・雑貨・コスメ": ["private", "private", "個人のものは、仕事で着る服でも基本的に経費にならない。"],
+  "美容サロン": ["private", "private", "個人のものは、基本的に経費にならない。"],
+  "医療・サプリ": ["private", "private", "個人のものは、基本的に経費にならない。"],
+  "娯楽・レジャー": ["private", "private", "個人の楽しみのためのものは、基本的に経費にならない。"],
+  "ペット": ["private", "private", "家の犬の費用は私用。"],
+  "その他・不明": ["check", "check", "何の支払いか分かれば判定できる。"],
+};
+const catRule = c => CAT_RULE[c] || CAT_RULE["その他・不明"];
+const defaultJudgment = (category, holder) => catRule(category)[holder === "toshi" ? 0 : 1];
+const explain = c => catRule(c)[2];
+// 固定費を探すカテゴリ（コンビニやETCの「たまたま同じ金額」を拾わないため）
+const FIXED_CATS = ["IT・サブスク", "通信費", "保険", "光熱費", "ネット通販"];
+const SUBSCRIPTION_CATS = ["IT・サブスク", "通信費", "保険", "光熱費"];
+
+const yen = n => (n < 0 ? "−" : "") + Math.abs(Math.round(n)).toLocaleString("ja-JP") + "円";
+const signedYen = n => (n > 0 ? "+" : n < 0 ? "−" : "±") + Math.abs(Math.round(n)).toLocaleString("ja-JP") + "円";
 const md = d => { const [, m, dd] = d.split("-"); return `${+m}/${+dd}`; };
 const monthLabel = bd => { const [y, m] = bd.split("-"); return `${y}年${+m}月引落し`; };
+const shortMonth = bd => `${+bd.split("-")[1]}月`;
+const ratioOf = t => (t.split_ratio != null ? +t.split_ratio : 0.5);
+// 会社の仕事分（経費＋按分の事業分）と、会社に精算が必要な分（私用＋按分の私用分）
+const bizAmount = t => t.judgment === "expense" ? t.amount : t.judgment === "split" ? t.amount * ratioOf(t) : 0;
+const privAmount = t => t.judgment === "private" ? t.amount : t.judgment === "split" ? t.amount * (1 - ratioOf(t)) : 0;
+const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 
-// 店名 → 表示名・カテゴリ
+// 店名 → 表示名・カテゴリ・判定
 function makeClassifier(rules, names) {
   const sorted = [...rules].sort((a, b) => a.priority - b.priority || a.id - b.id);
   const nameMap = Object.fromEntries(names.map(n => [n.name_key, n.display]));
   return t => {
     const display = nameMap[t.name_key] || t.name_key;
     const hit = sorted.find(r => t.merchant_raw.includes(r.pattern) || display.includes(r.pattern));
-    return { merchant: display, category: hit ? hit.category : "その他・不明" };
+    const category = hit ? hit.category : "その他・不明";
+    const ruleJ = hit && (t.cardholder === "toshi" ? hit.judgment_toshi : hit.judgment_momoe);
+    const judgment = ruleJ || defaultJudgment(category, t.cardholder);
+    return { merchant: display, category, judgment, split_ratio: judgment === "split" ? 0.5 : null };
   };
 }
 
-function Judge({ j }) {
+function Judge({ j, q }) {
+  if (q) return <span className="jb j-check">❓ 質問中</span>;
   return <span className={"jb j-" + j}>{j === "check" ? "⚠ " : ""}{JUDGMENTS[j].short}</span>;
 }
 function Who({ h }) {
   return <span className="who"><span className="sw" style={{ background: HOLDERS[h].color }}></span>{HOLDERS[h].name}</span>;
 }
+function MonthSelect({ statements, stmtId, setStmtId }) {
+  return <select value={stmtId || ""} onChange={e => setStmtId(+e.target.value)} style={{ width: "100%", fontWeight: 600 }}>
+    {statements.map(s => <option key={s.id} value={s.id}>{monthLabel(s.billing_date)}</option>)}
+  </select>;
+}
+const Disclaimer = () => <p className="disclaimer">経費かどうかの判定は目安です。最終的な判断は顧問税理士に確認します。</p>;
 
 // ---------- ログイン ----------
 function Login() {
@@ -239,7 +323,8 @@ function Login() {
   };
   return (
     <div className="wrap"><div className="login card">
-      <h1>カード明細チェック</h1>
+      <img src="icon-192.png" alt="" width="56" height="56" style={{ borderRadius: 14 }} />
+      <h1 style={{ marginTop: 8 }}>カード明細チェック</h1>
       <p className="sub" style={{ margin: "4px 0 12px" }}>セゾン ビジネスカードの明細を2人で確認するアプリです</p>
       <form onSubmit={submit}>
         <div className="field"><label>メールアドレス</label><input type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></div>
@@ -251,96 +336,269 @@ function Login() {
   );
 }
 
-// ---------- 明細 ----------
-function Transactions({ me, statements, stmtId, setStmtId }) {
-  const [txs, setTxs] = useState(null), [err, setErr] = useState("");
-  const [fHolder, setFHolder] = useState(""), [fCat, setFCat] = useState(""), [fJ, setFJ] = useState(""), [sort, setSort] = useState("date");
-  const [edit, setEdit] = useState(null);
+// ---------- ホーム ----------
+function buildInsights(statements, txs, stmt, me) {
+  const idx = statements.findIndex(s => s.id === stmt.id);
+  const prev = statements[idx + 1];
+  const older = statements.slice(idx + 1).map(s => s.id);
+  const cur = txs.filter(t => t.statement_id === stmt.id);
+  const out = [];
+  if (prev) {
+    const d = stmt.total - prev.total;
+    out.push({ k: "total", t: <>請求額は先月より <b className={d > 0 ? "up" : "dn"}>{signedYen(d)}</b>（{yen(prev.total)} → {yen(stmt.total)}）</> });
+    const prevT = txs.filter(t => t.statement_id === prev.id);
+    const catDiff = CATEGORIES.map(c => ({ c, d: sum(cur.filter(t => t.category === c), t => t.amount) - sum(prevT.filter(t => t.category === c), t => t.amount) }))
+      .filter(x => x.d > 0).sort((a, b) => b.d - a.d).slice(0, 2);
+    if (catDiff.length) out.push({ k: "cat", t: <>先月から増えたのは {catDiff.map((x, i) => <span key={x.c}>{i ? "、" : ""}<b>{x.c}</b>（<span className="up">{signedYen(x.d)}</span>）</span>)}</> });
+    const seen = new Set(txs.filter(t => older.includes(t.statement_id)).map(t => t.merchant));
+    const fresh = [...new Set(cur.filter(t => SUBSCRIPTION_CATS.includes(t.category) && !seen.has(t.merchant)).map(t => t.merchant))];
+    if (fresh.length) out.push({ k: "new", t: <>初めて出てきた支払い（毎月続くかも）：<b>{fresh.join("、")}</b></> });
+    const dc = sum(cur.filter(t => t.category === "キャリア決済（ドコモ）"), t => t.amount), dp = sum(prevT.filter(t => t.category === "キャリア決済（ドコモ）"), t => t.amount);
+    if (dc) out.push({ k: "docomo", t: <>ドコモのキャリア決済（d払い等）は <b>{yen(dc)}</b>（先月から <span className={dc - dp > 0 ? "up" : "dn"}>{signedYen(dc - dp)}</span>）。中身はdアカウントの明細で確認を</> });
+  }
+  const byM = {};
+  for (const t of cur.filter(t => SUBSCRIPTION_CATS.includes(t.category))) (byM[t.merchant + "|" + t.cardholder] = byM[t.merchant + "|" + t.cardholder] || []).push(t);
+  for (const [k, list] of Object.entries(byM)) if (list.length >= 2)
+    out.push({ k: "dup" + k, warn: true, t: <><b>{list[0].merchant}</b> が同じ月に{list.length}回請求されています（{list.map(t => yen(t.amount)).join("・")}）。二重になっていないか確認を</> });
+  const chk = cur.filter(t => t.judgment === "check" && (me.role === "owner" || t.cardholder === me.cardholder));
+  if (chk.length) out.push({ k: "chk", t: <>この月の要確認は <b>{chk.length}件</b>（{yen(sum(chk, t => t.amount))}）残っています</> });
+  return out;
+}
+
+function Home({ me, statements, txs, stmtId, setStmtId, go }) {
+  const [openCat, setOpenCat] = useState(null);
   const stmt = statements.find(s => s.id === stmtId);
+  if (!stmt) return <div className="card">まだ明細がありません。{me.role === "owner" ? "「その他」→「明細PDFの取り込み」から読み込んでください。" : ""}</div>;
+  const idx = statements.findIndex(s => s.id === stmt.id), prev = statements[idx + 1];
+  const cur = txs.filter(t => t.statement_id === stmt.id);
+  const cats = CATEGORIES.map(c => {
+    const l = cur.filter(t => t.category === c);
+    return { c, toshi: sum(l.filter(t => t.cardholder === "toshi"), t => t.amount), momoe: sum(l.filter(t => t.cardholder === "momoe"), t => t.amount), list: l };
+  }).map(x => ({ ...x, total: x.toshi + x.momoe })).filter(x => x.list.length).sort((a, b) => b.total - a.total);
+  const max = Math.max(...cats.map(c => c.total), 1);
+  const pT = stmt.total ? stmt.subtotal_toshi / stmt.total * 100 : 0;
+  const insights = buildInsights(statements, txs, stmt, me);
+  const myChecks = txs.filter(t => t.cardholder === me.cardholder && t.judgment === "check" && !t.question).length;
+  const questions = txs.filter(t => t.question).length;
+  const biz = sum(cur, bizAmount), priv = sum(cur, privAmount), chk = sum(cur.filter(t => t.judgment === "check"), t => t.amount);
 
-  useEffect(() => {
-    if (!stmtId) return;
-    setTxs(null); setErr("");
-    sb.from("card_transactions").select("*").eq("statement_id", stmtId).order("used_on").order("id")
-      .then(({ data, error }) => { if (error) setErr(error.message); else setTxs(data); });
-  }, [stmtId]);
-
-  const shown = useMemo(() => {
-    if (!txs) return [];
-    let a = txs.filter(t => (!fHolder || t.cardholder === fHolder) && (!fCat || t.category === fCat) && (!fJ || t.judgment === fJ));
-    if (sort === "amount") a = [...a].sort((x, y) => y.amount - x.amount);
-    return a;
-  }, [txs, fHolder, fCat, fJ, sort]);
-  const shownSum = shown.reduce((s, t) => s + t.amount, 0);
-  const catsInMonth = useMemo(() => txs ? CATEGORIES.filter(c => txs.some(t => t.category === c)) : [], [txs]);
-
-  if (!statements.length) return <div className="card">まだ明細がありません。{me.role === "owner" ? "「取り込み」からPDFを読み込んでください。" : ""}</div>;
   return (
     <>
+      {(myChecks > 0 || (me.role === "owner" && questions > 0)) && <div className="card action" onClick={() => go("check")}>
+        {me.role === "owner" && questions > 0 && <div><b>萌々恵から質問 {questions}件</b> <span className="sub">— 答えてあげてください</span></div>}
+        {myChecks > 0 && <div><b>{me.role === "owner" ? "自分の" : "あなたの"}要確認 {myChecks}件</b> <span className="sub">— 「仕事／私用」を選ぶだけ</span></div>}
+        <div className="go">チェックする →</div>
+      </div>}
       <div className="card" style={{ paddingBottom: 12 }}>
-        <select value={stmtId || ""} onChange={e => setStmtId(+e.target.value)} style={{ width: "100%", fontWeight: 600 }}>
-          {statements.map(s => <option key={s.id} value={s.id}>{monthLabel(s.billing_date)}</option>)}
-        </select>
-        {stmt && <div className="tiles" style={{ marginTop: 10 }}>
-          <div className="tile"><div className="l">ご請求額</div><div className="v">{yen(stmt.total)}</div></div>
-          <div className="tile"><div className="l"><span className="sw" style={{ background: HOLDERS.toshi.color }}></span>敏徳</div><div className="v">{yen(stmt.subtotal_toshi)}</div></div>
-          <div className="tile"><div className="l"><span className="sw" style={{ background: HOLDERS.momoe.color }}></span>萌々恵</div><div className="v">{yen(stmt.subtotal_momoe)}</div></div>
-        </div>}
+        <MonthSelect statements={statements} stmtId={stmtId} setStmtId={setStmtId} />
+        <div className="tiles" style={{ marginTop: 10 }}>
+          <div className="tile"><div className="l">ご請求額</div><div className="v">{yen(stmt.total)}</div>
+            {prev && <div className="s">先月より <span className={stmt.total > prev.total ? "up" : "dn"}>{signedYen(stmt.total - prev.total)}</span></div>}</div>
+          <div className="tile"><div className="l"><span className="sw" style={{ background: HOLDERS.toshi.color }}></span>敏徳</div><div className="v">{yen(stmt.subtotal_toshi)}</div><div className="s">{Math.round(pT)}%</div></div>
+          <div className="tile"><div className="l"><span className="sw" style={{ background: HOLDERS.momoe.color }}></span>萌々恵</div><div className="v">{yen(stmt.subtotal_momoe)}</div><div className="s">{Math.round(100 - pT)}%</div></div>
+        </div>
+        <div className="split"><span style={{ width: pT + "%", background: HOLDERS.toshi.color }}></span><span style={{ width: (100 - pT) + "%", background: HOLDERS.momoe.color }}></span></div>
       </div>
+
+      {insights.length > 0 && <div className="card"><h2>今月のひとこと</h2>
+        <ul className="pts">{insights.map(x => <li key={x.k} className={x.warn ? "warnli" : ""}>{x.t}</li>)}</ul></div>}
+
+      <div className="card">
+        <h2>経費の内訳（目安）</h2>
+        <div className="mini4">
+          <div><div className="l"><span className="jb j-expense">経費</span></div><div className="v">{yen(biz)}</div><div className="s">按分の事業分を含む</div></div>
+          <div><div className="l"><span className="jb j-private">私用</span></div><div className="v">{yen(priv)}</div><div className="s">会社に精算が必要</div></div>
+          <div><div className="l"><span className="jb j-check">⚠ 要確認</span></div><div className="v">{yen(chk)}</div><div className="s">{cur.filter(t => t.judgment === "check").length}件</div></div>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>何に使った？</h2>
+        <div className="legend"><Who h="toshi" /><Who h="momoe" /><span className="small">タップで内訳</span></div>
+        {cats.map(c => <div key={c.c}>
+          <div className={"catrow" + (openCat === c.c ? " sel" : "")} onClick={() => setOpenCat(openCat === c.c ? null : c.c)}>
+            <div className="n">{c.c}</div>
+            <div className="bar2">
+              {c.toshi > 0 && <span style={{ width: (c.toshi / max * 100) + "%", background: HOLDERS.toshi.color }}></span>}
+              {c.momoe > 0 && <span style={{ width: (c.momoe / max * 100) + "%", background: HOLDERS.momoe.color }}></span>}
+            </div>
+            <div className="a">{yen(c.total)}</div>
+          </div>
+          {openCat === c.c && <div className="catdetail">
+            <div className="sub">敏徳 {yen(c.toshi)} ・ 萌々恵 {yen(c.momoe)} ・ {c.list.length}件</div>
+            <table><tbody>{Object.entries(c.list.reduce((m, t) => { const k = t.merchant; (m[k] = m[k] || { n: 0, a: 0, h: new Set() }); m[k].n++; m[k].a += t.amount; m[k].h.add(t.cardholder); return m; }, {}))
+              .sort((a, b) => b[1].a - a[1].a).slice(0, 6).map(([m, v]) => <tr key={m}>
+                <td>{[...v.h].map(h => <span key={h} className="sw" style={{ background: HOLDERS[h].color, marginRight: 4 }}></span>)}{m}{v.n > 1 && <span className="small"> ×{v.n}</span>}</td>
+                <td className="r">{yen(v.a)}</td></tr>)}</tbody></table>
+            <div className="small" style={{ marginTop: 4 }}>{explain(c.c)}</div>
+          </div>}
+        </div>)}
+      </div>
+      <Disclaimer />
+    </>
+  );
+}
+
+// ---------- 経費チェック（1件ずつ） ----------
+function CheckCard({ t, mode, onDecide, onSkip }) {
+  const [step, setStep] = useState("choose"), [memo, setMemo] = useState(t.purpose_memo || ""), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  useEffect(() => { setStep("choose"); setMemo(t.purpose_memo || ""); setErr(""); }, [t.id]);
+  const needMemo = t.category === "外食";
+  const decide = async patch => { setBusy(true); setErr(""); const e = await onDecide(t, patch); setBusy(false); if (e) setErr(e); };
+  return (
+    <div className="card bigcard">
+      <div className="top"><Who h={t.cardholder} /><span className="small">{t.used_on.replace(/-/g, "/")}</span></div>
+      <div className="bm">{t.merchant}</div>
+      <div className="ba num">{yen(t.amount)}</div>
+      <div className="meta"><span className="chip">{t.category}</span>{t.foreign_note && <span className="small">{t.foreign_note}</span>}</div>
+      <div className="explain">💡 {explain(t.category)}</div>
+      {t.question && <div className="flag">萌々恵さんから「わからない」と質問が来ています{t.purpose_memo ? `（メモ：${t.purpose_memo}）` : ""}</div>}
+      {step === "choose" ? <div className="bigbtns">
+        <button className="b-work" disabled={busy} onClick={() => setStep("memo")}>💼 仕事で使った</button>
+        <button className="b-priv" disabled={busy} onClick={() => decide({ judgment: "private", question: false })}>🏠 私用</button>
+        {mode === "owner"
+          ? <><button className="b-split" disabled={busy} onClick={() => decide({ judgment: "split", split_ratio: 0.5, question: false })}>½ 一部だけ仕事（按分50%）</button>
+              <button className="b-ask" disabled={busy} onClick={onSkip}>あとで</button></>
+          : <button className="b-ask" disabled={busy} onClick={() => decide({ question: true })}>🤔 わからない（としに聞く）</button>}
+      </div> : <div>
+        <div className="field"><label>何のため？（誰と・どこへ）{needMemo ? "　※外食は必ず書いてください" : ""}</label>
+          <textarea rows="2" autoFocus value={memo} onChange={e => setMemo(e.target.value)} placeholder="例：〇〇さんと打ち合わせ／△△の物件を見に行った" /></div>
+        <div className="bigbtns">
+          <button className="b-work" disabled={busy || (needMemo && !memo.trim())} onClick={() => decide({ judgment: "expense", purpose_memo: memo.trim() || null, question: false })}>{busy ? "保存中…" : "これで決定"}</button>
+          <button className="b-ask" disabled={busy} onClick={() => setStep("choose")}>戻る</button>
+        </div>
+      </div>}
+      {err && <div className="ngbox">{err}</div>}
+    </div>
+  );
+}
+
+function CheckFlow({ me, items, allMine, mode, updateTx, title, note }) {
+  const [skipped, setSkipped] = useState([]);
+  const queue = [...items.filter(t => !skipped.includes(t.id)), ...items.filter(t => skipped.includes(t.id))];
+  const cur = queue[0];
+  const done = allMine - items.length;
+  const pct = allMine ? done / allMine * 100 : 100;
+  return (
+    <>
+      <div className="card">
+        <div className="top"><h2 style={{ margin: 0 }}>{title}</h2><span className="sub">残り <b className="num">{items.length}</b>件</span></div>
+        <div className="progress"><span style={{ width: pct + "%" }}></span></div>
+        {note && <div className="small" style={{ marginTop: 6 }}>{note}</div>}
+      </div>
+      {cur ? <CheckCard key={cur.id} t={cur} mode={mode}
+        onDecide={async (t, patch) => updateTx(t.id, patch)}
+        onSkip={() => setSkipped(s => [...s.filter(x => x !== cur.id), cur.id])} />
+        : <div className="card done">🎉 全部チェックできました！<div className="sub">新しい明細が入ったら、またここに出てきます。</div></div>}
+    </>
+  );
+}
+
+function Check({ me, txs, updateTx }) {
+  const mineAll = txs.filter(t => t.cardholder === me.cardholder);
+  const order = (a, b) => b.statement_id - a.statement_id || a.used_on.localeCompare(b.used_on) || a.id - b.id;
+  const mine = mineAll.filter(t => t.judgment === "check" && !t.question).sort(order);
+  const everMine = mineAll.filter(t => t.judgment === "check" || t.judgment_source === "manual" || t.question).length;
+  if (me.role === "owner") {
+    const qs = txs.filter(t => t.question).sort(order);
+    return <>
+      {qs.length > 0 && <CheckFlow me={me} items={qs} allMine={qs.length} mode="owner" updateTx={updateTx} title={`萌々恵から質問（${qs.length}件）`} />}
+      <CheckFlow me={me} items={mine} allMine={everMine} mode="owner" updateTx={updateTx} title="自分の要確認" />
+      <Disclaimer />
+    </>;
+  }
+  const asked = mineAll.filter(t => t.question).length;
+  return <>
+    <CheckFlow me={me} items={mine} allMine={everMine} mode="member" updateTx={updateTx} title="経費チェック"
+      note="仕事で使ったか分からないものだけ出てきます。迷ったら「わからない」でOK。" />
+    {asked > 0 && <div className="card sub">としに質問中：{asked}件（答えが出るとここから消えます）</div>}
+    <Disclaimer />
+  </>;
+}
+
+// ---------- 明細 ----------
+function Transactions({ me, statements, txs, stmtId, setStmtId, updateTx, rules, reloadRules }) {
+  const [fHolder, setFHolder] = useState(""), [fCat, setFCat] = useState(""), [fJ, setFJ] = useState(""), [sort, setSort] = useState("date");
+  const [edit, setEdit] = useState(null);
+  const monthTx = useMemo(() => txs.filter(t => t.statement_id === stmtId).sort((a, b) => a.used_on.localeCompare(b.used_on) || a.id - b.id), [txs, stmtId]);
+  const shown = useMemo(() => {
+    let a = monthTx.filter(t => (!fHolder || t.cardholder === fHolder) && (!fCat || t.category === fCat)
+      && (!fJ || (fJ === "question" ? t.question : t.judgment === fJ)));
+    if (sort === "amount") a = [...a].sort((x, y) => y.amount - x.amount);
+    return a;
+  }, [monthTx, fHolder, fCat, fJ, sort]);
+  const catsInMonth = CATEGORIES.filter(c => monthTx.some(t => t.category === c));
+  if (!statements.length) return <div className="card">まだ明細がありません。</div>;
+  return (
+    <>
+      <div className="card" style={{ paddingBottom: 12 }}><MonthSelect statements={statements} stmtId={stmtId} setStmtId={setStmtId} /></div>
       <div className="card">
         <div className="ctrl">
-          <select value={fHolder} onChange={e => setFHolder(e.target.value)}>
-            <option value="">2人とも</option><option value="toshi">敏徳</option><option value="momoe">萌々恵</option>
-          </select>
-          <select value={fCat} onChange={e => setFCat(e.target.value)}>
-            <option value="">すべてのカテゴリ</option>{catsInMonth.map(c => <option key={c}>{c}</option>)}
-          </select>
-          <select value={fJ} onChange={e => setFJ(e.target.value)}>
-            <option value="">すべての判定</option>{Object.entries(JUDGMENTS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-          </select>
-          <select value={sort} onChange={e => setSort(e.target.value)}>
-            <option value="date">日付順</option><option value="amount">金額の大きい順</option>
-          </select>
+          <select value={fHolder} onChange={e => setFHolder(e.target.value)}><option value="">2人とも</option><option value="toshi">敏徳</option><option value="momoe">萌々恵</option></select>
+          <select value={fCat} onChange={e => setFCat(e.target.value)}><option value="">すべてのカテゴリ</option>{catsInMonth.map(c => <option key={c}>{c}</option>)}</select>
+          <select value={fJ} onChange={e => setFJ(e.target.value)}><option value="">すべての判定</option>{Object.entries(JUDGMENTS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}<option value="question">質問中（わからない）</option></select>
+          <select value={sort} onChange={e => setSort(e.target.value)}><option value="date">日付順</option><option value="amount">金額の大きい順</option></select>
         </div>
-        <div className="sub" style={{ marginTop: 8 }}>{txs ? <><span className="num">{shown.length}</span>件・合計 <b className="num">{yen(shownSum)}</b></> : "読み込み中…"}</div>
-        {err && <div className="ngbox">{err}</div>}
+        <div className="sub" style={{ marginTop: 8 }}><span className="num">{shown.length}</span>件・合計 <b className="num">{yen(sum(shown, t => t.amount))}</b></div>
         <div className="list">
           {shown.map(t => (
             <div className="tx" key={t.id} onClick={() => setEdit(t)}>
               <div className="d num">{md(t.used_on)}<br /><span className="sw" style={{ background: HOLDERS[t.cardholder].color }}></span></div>
               <div className="m">
                 <div className="mn">{t.merchant}</div>
-                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} />{t.purpose_memo && <span className="small">📝</span>}</div>
+                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} q={t.question} />{t.purpose_memo && <span className="small">📝</span>}</div>
               </div>
               <div className={"a" + (t.amount < 0 ? " neg" : "")}>{yen(t.amount)}</div>
             </div>
           ))}
         </div>
       </div>
-      <p className="disclaimer">経費かどうかの判定は目安です。最終的な判断は顧問税理士に確認します。</p>
-      {edit && <EditSheet me={me} tx={edit} onClose={() => setEdit(null)}
-        onSaved={nt => { setTxs(ts => ts.map(t => t.id === nt.id ? nt : t)); setEdit(null); }} />}
+      <Disclaimer />
+      {edit && <EditSheet me={me} tx={edit} txs={txs} rules={rules} reloadRules={reloadRules} updateTx={updateTx} onClose={() => setEdit(null)} />}
     </>
   );
 }
 
-function EditSheet({ me, tx, onClose, onSaved }) {
+function EditSheet({ me, tx, txs, rules, reloadRules, updateTx, onClose }) {
   const isOwner = me.role === "owner";
   const canEdit = isOwner || tx.cardholder === me.cardholder;
   const [category, setCategory] = useState(tx.category);
   const [judgment, setJudgment] = useState(tx.judgment);
-  const [ratio, setRatio] = useState(tx.split_ratio != null ? Math.round(tx.split_ratio * 100) : 50);
+  const [ratio, setRatio] = useState(Math.round(ratioOf(tx) * 100));
   const [memo, setMemo] = useState(tx.purpose_memo || "");
+  const [learn, setLearn] = useState(true), [applyOthers, setApplyOthers] = useState(true);
   const [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const catChanged = category !== tx.category;
+  const others = txs.filter(t => t.id !== tx.id && t.merchant === tx.merchant && t.category !== category);
+  const pickCategory = c => {
+    setCategory(c);
+    // 判定を手で触っていなければ、新しいカテゴリの既定の判定に合わせる
+    if (tx.judgment_source === "auto" && judgment === tx.judgment) setJudgment(defaultJudgment(c, tx.cardholder));
+  };
   const save = async () => {
     setBusy(true); setErr("");
     const patch = { judgment, split_ratio: judgment === "split" ? Math.min(100, Math.max(0, +ratio)) / 100 : null, purpose_memo: memo.trim() || null };
-    if (isOwner) { patch.category = category; if (judgment !== tx.judgment || patch.split_ratio !== tx.split_ratio) patch.judgment_source = "manual"; }
-    try {
-      const { data, error } = await sb.from("card_transactions").update(patch).eq("id", tx.id).select().single();
-      if (error) setErr(error.message); else onSaved(data);
-    } catch (e) { setErr("保存できませんでした：" + e.message); }
+    if (judgment !== "check") patch.question = false;
+    if (isOwner) {
+      patch.category = category;
+      const autoFollow = tx.judgment_source === "auto" && judgment === defaultJudgment(category, tx.cardholder);
+      if (!autoFollow && (judgment !== tx.judgment || patch.split_ratio !== (tx.split_ratio == null ? null : +tx.split_ratio))) patch.judgment_source = "manual";
+    }
+    let e = await updateTx(tx.id, patch);
+    if (!e && isOwner && catChanged && learn) {
+      const minP = Math.min(0, ...rules.map(r => r.priority));
+      const { error } = await sb.from("card_merchant_rules").upsert({ pattern: tx.merchant, category, priority: minP - 1 }, { onConflict: "pattern" });
+      if (error) e = "ルールの保存に失敗：" + error.message; else reloadRules();
+    }
+    if (!e && isOwner && catChanged && applyOthers) {
+      for (const t of others) {
+        const p = { category };
+        if (t.judgment_source === "auto") { p.judgment = defaultJudgment(category, t.cardholder); p.split_ratio = p.judgment === "split" ? 0.5 : null; }
+        const er = await updateTx(t.id, p); if (er) { e = er; break; }
+      }
+    }
     setBusy(false);
+    if (e) setErr(e); else onClose();
   };
   return (
     <div className="sheet-bg" onClick={onClose}>
@@ -351,17 +609,23 @@ function EditSheet({ me, tx, onClose, onSaved }) {
         <div className="small">{tx.used_on.replace(/-/g, "/")} ・ 明細の表記：{tx.merchant_raw}{tx.foreign_note ? ` ・ ${tx.foreign_note}` : ""}</div>
 
         <div className="field"><label>カテゴリ</label>
-          {isOwner ? <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: "100%" }}>
+          {isOwner ? <select value={category} onChange={e => pickCategory(e.target.value)} style={{ width: "100%" }}>
             {CATEGORY_GROUPS.map(([g, cs]) => <optgroup key={g} label={g}>{cs.map(c => <option key={c}>{c}</option>)}</optgroup>)}
           </select> : <div>{tx.category}</div>}
+          {isOwner && catChanged && <div className="learn">
+            <label><input type="checkbox" checked={learn} onChange={e => setLearn(e.target.checked)} /> 次からも「{tx.merchant}」は「{category}」にする</label>
+            {others.length > 0 && <label><input type="checkbox" checked={applyOthers} onChange={e => setApplyOthers(e.target.checked)} /> 同じ店のほかの明細（{others.length}件）も変える</label>}
+          </div>}
         </div>
+        <div className="explain">💡 {explain(category)}</div>
 
         <div className="field"><label>経費になる？</label>
           {canEdit ? <div className="seg">
             {Object.entries(JUDGMENTS).map(([k, v]) =>
               <button key={k} className={"j-" + k + (judgment === k ? " on" : "")} onClick={() => setJudgment(k)}>{v.label}</button>)}
-          </div> : <Judge j={tx.judgment} />}
+          </div> : <Judge j={tx.judgment} q={tx.question} />}
           {tx.judgment_source === "manual" && <div className="small" style={{ marginTop: 4 }}>手で入力した判定です</div>}
+          {tx.question && <div className="small" style={{ marginTop: 4 }}>❓ 萌々恵さんから質問中</div>}
         </div>
         {canEdit && judgment === "split" && <div className="field"><label>仕事で使った割合（%）</label>
           <input type="number" inputMode="numeric" min="0" max="100" value={ratio} onChange={e => setRatio(e.target.value)} style={{ width: 120 }} /></div>}
@@ -378,6 +642,170 @@ function EditSheet({ me, tx, onClose, onSaved }) {
   );
 }
 
+// ---------- 分析（推移・固定費・経費まとめ） ----------
+function findFixed(statements, txs) {
+  const asc = [...statements].reverse();
+  const pos = Object.fromEntries(asc.map((s, i) => [s.id, i]));
+  const groups = {};
+  for (const t of txs) if (FIXED_CATS.includes(t.category)) (groups[t.merchant + "|" + t.cardholder] = groups[t.merchant + "|" + t.cardholder] || []).push(t);
+  const out = [];
+  for (const list of Object.values(groups)) {
+    const used = new Set();
+    for (const a of [...list].sort((x, y) => pos[y.statement_id] - pos[x.statement_id])) {
+      if (used.has(a.id) || a.amount <= 0) continue;
+      const near = list.filter(t => !used.has(t.id) && Math.abs(t.amount - a.amount) <= a.amount * 0.05);
+      const months = new Set(near.map(t => t.statement_id));
+      if (months.size >= 2) {
+        near.forEach(t => used.add(t.id));
+        out.push({ merchant: a.merchant, cardholder: a.cardholder, category: a.category, amount: a.amount, months: months.size,
+          last: asc[Math.max(...near.map(t => pos[t.statement_id]))].billing_date });
+      }
+    }
+  }
+  return out.sort((a, b) => b.amount - a.amount);
+}
+
+function Analysis({ me, statements, txs }) {
+  const [sub, setSub] = useState("trend");
+  return <>
+    <div className="subtabs">
+      {[["trend", "推移"], ["fixed", "固定費"], ["summary", "経費まとめ"]].map(([k, l]) => <button key={k} className={sub === k ? "on" : ""} onClick={() => setSub(k)}>{l}</button>)}
+    </div>
+    {sub === "trend" && <Trend statements={statements} txs={txs} />}
+    {sub === "fixed" && <Fixed statements={statements} txs={txs} />}
+    {sub === "summary" && <Summary me={me} statements={statements} txs={txs} />}
+    <Disclaimer />
+  </>;
+}
+
+function Trend({ statements, txs }) {
+  const asc = [...statements].reverse();
+  const max = Math.max(...asc.map(s => s.total), 1);
+  const rows = CATEGORIES.map(c => {
+    const per = asc.map(s => sum(txs.filter(t => t.statement_id === s.id && t.category === c), t => t.amount));
+    return { c, per, avg: asc.length ? sum(per, x => x) / asc.length : 0 };
+  }).filter(r => r.per.some(x => x)).sort((a, b) => b.avg - a.avg);
+  return <>
+    <div className="card"><h2>毎月の請求額</h2>
+      <div className="legend"><Who h="toshi" /><Who h="momoe" /></div>
+      {asc.map(s => <div className="catrow" key={s.id} style={{ cursor: "default" }}>
+        <div className="n">{shortMonth(s.billing_date)}引落し</div>
+        <div className="bar2"><span style={{ width: s.subtotal_toshi / max * 100 + "%", background: HOLDERS.toshi.color }}></span><span style={{ width: s.subtotal_momoe / max * 100 + "%", background: HOLDERS.momoe.color }}></span></div>
+        <div className="a">{yen(s.total)}</div>
+      </div>)}
+      {asc.length > 0 && <div className="sub" style={{ marginTop: 6 }}>月平均 <b>{yen(sum(asc, s => s.total) / asc.length)}</b></div>}
+    </div>
+    <div className="card"><h2>カテゴリ×月</h2>
+      <div className="tbl wide"><table>
+        <thead><tr><th>カテゴリ</th>{asc.map(s => <th key={s.id} className="r">{shortMonth(s.billing_date)}</th>)}<th className="r">月平均</th></tr></thead>
+        <tbody>{rows.map(r => <tr key={r.c}><td>{r.c}</td>{r.per.map((x, i) => <td key={i} className="r">{x ? x.toLocaleString() : "–"}</td>)}<td className="r"><b>{Math.round(r.avg).toLocaleString()}</b></td></tr>)}</tbody>
+      </table></div>
+      <div className="small">単位：円（引落し月ごと）</div>
+    </div>
+  </>;
+}
+
+function Fixed({ statements, txs }) {
+  const fixed = findFixed(statements, txs);
+  const latest = statements[0];
+  const current = fixed.filter(f => latest && f.last === latest.billing_date);
+  const stopped = fixed.filter(f => !latest || f.last !== latest.billing_date);
+  const asc = [...statements].reverse();
+  const carrier = ["toshi", "momoe"].map(h => ({ h, per: asc.map(s => sum(txs.filter(t => t.statement_id === s.id && t.cardholder === h && t.category === "キャリア決済（ドコモ）"), t => t.amount)) })).filter(x => x.per.some(v => v));
+  return <>
+    <div className="card"><h2>毎月決まって出ていくお金</h2>
+      <div className="sub">同じ店で、ほぼ同じ金額（±5%）が2か月以上続いている支払いです。</div>
+      <div className="list">{current.map((f, i) => <div className="tx" key={i} style={{ cursor: "default" }}>
+        <div className="d"><span className="sw" style={{ background: HOLDERS[f.cardholder].color }}></span></div>
+        <div className="m"><div className="mn">{f.merchant}</div><div className="meta"><span className="chip">{f.category}</span><span className="small">{f.months}か月</span></div></div>
+        <div className="a">{yen(f.amount)}</div></div>)}</div>
+      <div className="sub" style={{ marginTop: 8 }}>合計 <b>{yen(sum(current, f => f.amount))}</b>／月</div>
+      {stopped.length > 0 && <div className="small" style={{ marginTop: 8 }}>最新の月には出てこなかったもの：{stopped.map(f => `${f.merchant}（${yen(f.amount)}）`).join("、")}</div>}
+    </div>
+    {carrier.length > 0 && <div className="card"><h2>毎月あるけど金額が変わるもの</h2>
+      <div className="sub">ドコモのキャリア決済（d払い等）。中身はdアカウントの明細で確認を。</div>
+      <div className="tbl wide"><table><thead><tr><th></th>{asc.map(s => <th key={s.id} className="r">{shortMonth(s.billing_date)}</th>)}</tr></thead>
+        <tbody>{carrier.map(c => <tr key={c.h}><td><Who h={c.h} /></td>{c.per.map((v, i) => <td key={i} className="r">{v ? v.toLocaleString() : "–"}</td>)}</tr>)}</tbody></table></div>
+    </div>}
+  </>;
+}
+
+function Summary({ me, statements, txs }) {
+  const [csvMonth, setCsvMonth] = useState("all");
+  const rows = statements.map(s => {
+    const l = txs.filter(t => t.statement_id === s.id);
+    return { s, exp: sum(l.filter(t => t.judgment === "expense"), t => t.amount), splitBiz: sum(l.filter(t => t.judgment === "split"), bizAmount),
+      priv: sum(l, privAmount), chk: sum(l.filter(t => t.judgment === "check"), t => t.amount), chkN: l.filter(t => t.judgment === "check").length };
+  });
+  const download = () => {
+    const list = txs.filter(t => csvMonth === "all" || t.statement_id === +csvMonth)
+      .sort((a, b) => a.statement_id - b.statement_id || a.used_on.localeCompare(b.used_on) || a.id - b.id);
+    const bd = Object.fromEntries(statements.map(s => [s.id, s.billing_date]));
+    const esc = v => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const head = ["引落日", "利用日", "利用者", "店名", "金額", "カテゴリ", "判定", "事業割合", "事業分の金額", "会社に精算が必要な額", "用途メモ", "明細の表記", "外貨"];
+    const lines = [head, ...list.map(t => [bd[t.statement_id], t.used_on, HOLDERS[t.cardholder].name, t.merchant, t.amount, t.category,
+      t.question ? "要確認（質問中）" : JUDGMENTS[t.judgment].short, t.judgment === "split" ? ratioOf(t) : "", Math.round(bizAmount(t)), Math.round(privAmount(t)),
+      t.purpose_memo, t.merchant_raw, t.foreign_note])].map(r => r.map(esc).join(",")).join("\r\n");
+    const blob = new Blob(["﻿" + lines], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `card_${csvMonth === "all" ? "all" : bd[+csvMonth]}.csv`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  return <>
+    <div className="card"><h2>月ごとの経費まとめ（目安）</h2>
+      <div className="list">{rows.map(r => <div key={r.s.id} className="sumrow">
+        <div className="top"><b>{monthLabel(r.s.billing_date)}</b><span className="num">{yen(r.s.total)}</span></div>
+        <div className="grid4">
+          <div><span className="jb j-expense">経費</span><div className="num">{yen(r.exp)}</div></div>
+          <div><span className="jb j-split">按分（事業分）</span><div className="num">{yen(r.splitBiz)}</div></div>
+          <div><span className="jb j-private">精算が必要</span><div className="num">{yen(r.priv)}</div></div>
+          <div><span className="jb j-check">⚠ 要確認</span><div className="num">{yen(r.chk)}<span className="small"> {r.chkN}件</span></div></div>
+        </div>
+      </div>)}</div>
+      <div className="small" style={{ marginTop: 8 }}>「精算が必要」＝会社のカードで払った私用の分（按分の私用分を含む）。会社に返すか、会社の帳簿で処理が必要です。要確認が残っている月は、決まるまで金額が動きます。</div>
+    </div>
+    {me.role === "owner" && <div className="card"><h2>税理士さんに渡すCSV</h2>
+      <div className="ctrl"><select value={csvMonth} onChange={e => setCsvMonth(e.target.value)}>
+        <option value="all">全部の月</option>{statements.map(s => <option key={s.id} value={s.id}>{monthLabel(s.billing_date)}</option>)}
+      </select><button className="primary" onClick={download}>CSVを保存</button></div>
+      <div className="small" style={{ marginTop: 6 }}>Excelでそのまま開けます（1件1行・判定とメモつき）。</div>
+    </div>}
+  </>;
+}
+
+// ---------- その他（ガイド・取り込み） ----------
+function Guide() {
+  const label = j => <span className={"jb j-" + j}>{JUDGMENTS[j].short}</span>;
+  return <>
+    <div className="card principle">
+      <h2>経費になる？ならない？</h2>
+      <p style={{ fontSize: 16, margin: "4px 0" }}><b>会社のお金で払ってよいのは、会社の仕事のために使ったものだけ。</b></p>
+      <p className="sub" style={{ margin: 0 }}>合同会社VISIONの仕事は不動産業（ドッグランカフェも構想中）。物件を見に行く・お客さんに会う・事務所で使う、などが「仕事」です。</p>
+    </div>
+    <div className="card"><h2>会社のカードで私用の支払いをしたら？</h2>
+      <p className="sub" style={{ margin: 0 }}>会社にお金を返す（精算する）か、会社の帳簿で処理が必要になります。毎月の合計は「分析」→「経費まとめ」の<b>「精算が必要」</b>で見られます。</p></div>
+    {CATEGORY_GROUPS.map(([g, cs]) => <div className="card" key={g}><h2>{g}</h2>
+      {cs.map(c => <div className="guiderow" key={c}>
+        <div className="top"><b>{c}</b><span className="gj"><span className="small">敏徳</span>{label(catRule(c)[0])}<span className="small">萌々恵</span>{label(catRule(c)[1])}</span></div>
+        <div className="sub">{explain(c)}</div>
+      </div>)}
+    </div>)}
+    <div className="card sub">最終的な判断は税理士さんに確認します。ここに書いてあるのは、迷わないための目安です。</div>
+  </>;
+}
+
+function More({ me, statements, onSaved, rules, names }) {
+  const [sub, setSub] = useState("guide");
+  return <>
+    {me.role === "owner" && <div className="subtabs">
+      {[["guide", "経費ガイド"], ["upload", "明細PDFの取り込み"]].map(([k, l]) => <button key={k} className={sub === k ? "on" : ""} onClick={() => setSub(k)}>{l}</button>)}
+    </div>}
+    {sub === "guide" && <Guide />}
+    {sub === "upload" && me.role === "owner" && <Upload statements={statements} onSaved={onSaved} rules={rules} names={names} />}
+  </>;
+}
+
 // ---------- 取り込み（オーナーのみ） ----------
 async function readPdf(file) {
   const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
@@ -386,28 +814,21 @@ async function readPdf(file) {
   return cardParseStatement(pages);
 }
 
-function Upload({ statements, onSaved }) {
+function Upload({ statements, onSaved, rules, names }) {
   const [items, setItems] = useState([]);
-  const [cls, setCls] = useState(null), [loadErr, setLoadErr] = useState("");
-  useEffect(() => {
-    Promise.all([sb.from("card_merchant_rules").select("*"), sb.from("card_merchant_names").select("*")]).then(([r, n]) => {
-      if (r.error || n.error) setLoadErr((r.error || n.error).message); else setCls(() => makeClassifier(r.data, n.data));
-    });
-  }, []);
-
+  const cls = useMemo(() => makeClassifier(rules, names), [rules, names]);
   const pick = async e => {
     const files = [...e.target.files]; e.target.value = "";
     const list = files.map(f => ({ key: f.name + f.size + Math.random(), name: f.name, state: "reading" }));
     setItems(list);
-    for (const it of list) {
-      const f = files[list.indexOf(it)];
+    for (let i = 0; i < list.length; i++) {
       let upd;
       try {
-        const res = await readPdf(f);
+        const res = await readPdf(files[i]);
         res.txs = res.txs.map(t => ({ ...t, ...cls(t) }));
         upd = { state: "parsed", res };
       } catch (err) { upd = { state: "error", error: "PDFを読めませんでした：" + err.message }; }
-      setItems(xs => xs.map(x => x.key === it.key ? { ...x, ...upd } : x));
+      setItems(xs => xs.map(x => x.key === list[i].key ? { ...x, ...upd } : x));
     }
   };
   const save = async it => {
@@ -417,7 +838,8 @@ function Upload({ statements, onSaved }) {
     const p = {
       billing_date: r.billing_date, total: r.total, subtotal_toshi: r.subtotal.toshi || 0, subtotal_momoe: r.subtotal.momoe || 0,
       period_from: ds[0], period_to: ds[ds.length - 1],
-      transactions: r.txs.map(t => ({ used_on: t.used_on, merchant_raw: t.merchant_raw, merchant: t.merchant, amount: t.amount, cardholder: t.cardholder, category: t.category, foreign_note: t.foreign_note })),
+      transactions: r.txs.map(t => ({ used_on: t.used_on, merchant_raw: t.merchant_raw, merchant: t.merchant, amount: t.amount, cardholder: t.cardholder,
+        category: t.category, judgment: t.judgment, split_ratio: t.split_ratio, foreign_note: t.foreign_note })),
     };
     let error;
     try { ({ error } = await sb.rpc("card_save_statement", { p, p_overwrite: exists })); }
@@ -425,14 +847,12 @@ function Upload({ statements, onSaved }) {
     setItems(xs => xs.map(x => x.key === it.key ? { ...x, state: error ? "parsed" : "saved", saveError: error && error.message } : x));
     if (!error) onSaved(r.billing_date);
   };
-
   return (
     <>
       <div className="card">
         <h2>明細PDFを取り込む</h2>
         <p className="sub" style={{ marginTop: 0 }}>セゾンの「ご利用明細書」PDFを選んでください（複数まとめて選べます）。読み取りはこの端末の中だけで行い、PDFそのものは保存しません。カード番号・口座番号も保存しません。</p>
-        {loadErr && <div className="ngbox">{loadErr}</div>}
-        <input type="file" accept="application/pdf,.pdf" multiple onChange={pick} disabled={!cls} style={{ width: "100%" }} />
+        <input type="file" accept="application/pdf,.pdf" multiple onChange={pick} style={{ width: "100%" }} />
       </div>
       {items.map(it => <UploadItem key={it.key} it={it} statements={statements} onSave={() => save(it)} />)}
     </>
@@ -447,9 +867,10 @@ function UploadItem({ it, statements, onSave }) {
   const exists = statements.some(s => s.billing_date === r.billing_date);
   const byCat = {};
   for (const t of r.txs) { const c = byCat[t.category] || (byCat[t.category] = { toshi: 0, momoe: 0 }); c[t.cardholder] += t.amount; }
-  const cats = Object.entries(byCat).map(([c, v]) => ({ c, ...v, sum: v.toshi + v.momoe })).sort((a, b) => b.sum - a.sum);
-  const max = Math.max(...cats.map(c => c.sum), 1);
+  const cats = Object.entries(byCat).map(([c, v]) => ({ c, ...v, total: v.toshi + v.momoe })).sort((a, b) => b.total - a.total);
+  const max = Math.max(...cats.map(c => c.total), 1);
   const unknown = r.txs.filter(t => t.category === "その他・不明");
+  const jCount = Object.keys(JUDGMENTS).map(j => [j, r.txs.filter(t => t.judgment === j).length]).filter(x => x[1]);
   return (
     <div className="card">
       <div className="top"><b>{r.billing_date ? monthLabel(r.billing_date) : it.name}</b><span className="small">{it.name}</span></div>
@@ -458,19 +879,16 @@ function UploadItem({ it, statements, onSave }) {
             <ul>{Object.keys(r.subtotal).map(k => <li key={k}>{HOLDERS[k].name}：<span className="num">{r.txs.filter(t => t.cardholder === k).length}</span>件 <span className="num">{yen(r.subtotal[k])}</span></li>)}</ul></div>
         : <div className="ngbox">❌ 合計が合わないため保存できません<ul>{r.errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
       {r.warnings.length > 0 && <div className="flag"><ul style={{ margin: 0, paddingLeft: 18 }}>{r.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul></div>}
-
       {r.txs.length > 0 && <>
         <div style={{ marginTop: 14, fontSize: 13, fontWeight: 600 }}>振り分けの結果</div>
         <div style={{ marginTop: 6 }}>
-          {cats.map(c => <div className="catbar" key={c.c}>
+          {cats.map(c => <div className="catrow" key={c.c} style={{ cursor: "default" }}>
             <div className="n">{c.c}</div>
-            <div className="bar" style={{ background: "none" }}>
-              <span style={{ width: (Math.max(c.toshi, 0) / max * 100) + "%", background: HOLDERS.toshi.color }}></span>
-              <span style={{ width: (Math.max(c.momoe, 0) / max * 100) + "%", background: HOLDERS.momoe.color }}></span>
-            </div>
-            <div className="a">{yen(c.sum)}</div>
+            <div className="bar2"><span style={{ width: (Math.max(c.toshi, 0) / max * 100) + "%", background: HOLDERS.toshi.color }}></span><span style={{ width: (Math.max(c.momoe, 0) / max * 100) + "%", background: HOLDERS.momoe.color }}></span></div>
+            <div className="a">{yen(c.total)}</div>
           </div>)}
         </div>
+        <div className="meta" style={{ marginTop: 6 }}>{jCount.map(([j, n]) => <span key={j}><Judge j={j} /> <span className="small">{n}件</span></span>)}</div>
         {unknown.length > 0 && <div className="small" style={{ marginTop: 6 }}>「その他・不明」{unknown.length}件：{unknown.map(t => t.merchant).join("、")}</div>}
         <button className="link" onClick={() => setShowRows(v => !v)}>{showRows ? "明細を閉じる" : `明細${r.txs.length}件を見る`}</button>
         {showRows && <div className="tbl"><table><thead><tr><th>日付</th><th>店名</th><th>カテゴリ</th><th className="r">金額</th></tr></thead><tbody>
@@ -478,11 +896,10 @@ function UploadItem({ it, statements, onSave }) {
             <td>{t.merchant}{t.foreign_note && <div className="small">{t.foreign_note}</div>}</td><td className="small">{t.category}</td><td className="r">{yen(t.amount)}</td></tr>)}
         </tbody></table></div>}
       </>}
-
       {it.state === "saved" ? <div className="okbox">保存しました</div> : r.ok && <>
         {exists && <label className="flag" style={{ display: "block" }}>
           <input type="checkbox" checked={confirmOverwrite} onChange={e => setConfirmOverwrite(e.target.checked)} style={{ marginRight: 6 }} />
-          この月はすでに登録済みです。<b>上書きする</b>（手で入れた判定・メモは引き継ぎます）
+          この月はすでに登録済みです。<b>上書きする</b>（手で入れた判定・メモ・質問は引き継ぎます）
         </label>}
         {it.saveError && <div className="ngbox">{it.saveError}</div>}
         <button className="primary" style={{ width: "100%", marginTop: 12 }} disabled={it.state === "saving" || (exists && !confirmOverwrite)} onClick={onSave}>
@@ -494,33 +911,75 @@ function UploadItem({ it, statements, onSave }) {
 }
 
 // ---------- 全体 ----------
+const ic = d => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 const Icon = {
-  list: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>,
-  upload: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>,
+  home: ic(<><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></>),
+  check: ic(<><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></>),
+  list: ic(<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />),
+  chart: ic(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />),
+  more: ic(<><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>),
 };
 
+async function loadAllTx() {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from("card_transactions").select("*").order("id").range(from, from + 999);
+    if (error) throw error;
+    out.push(...data);
+    if (data.length < 1000) return out;
+  }
+}
+
 function Main({ session }) {
-  const [me, setMe] = useState(undefined), [statements, setStatements] = useState([]), [stmtId, setStmtId] = useState(null);
-  const [tab, setTab] = useState("tx"), [err, setErr] = useState("");
-  const loadStatements = useCallback(async preferDate => {
-    const { data, error } = await sb.from("card_statements").select("*").order("billing_date", { ascending: false });
-    if (error) { setErr(error.message); return; }
-    setStatements(data);
-    const pick = (preferDate && data.find(s => s.billing_date === preferDate)) || data[0];
-    setStmtId(id => preferDate ? pick && pick.id : (data.some(s => s.id === id) ? id : pick && pick.id));
+  const [me, setMe] = useState(undefined), [statements, setStatements] = useState([]), [txs, setTxs] = useState([]), [stmtId, setStmtId] = useState(null);
+  const [rules, setRules] = useState([]), [names, setNames] = useState([]);
+  const [tab, setTab] = useState(null), [err, setErr] = useState(""), [loading, setLoading] = useState(true);
+
+  const reloadRules = useCallback(async () => {
+    const [r, n] = await Promise.all([sb.from("card_merchant_rules").select("*"), sb.from("card_merchant_names").select("*")]);
+    if (!r.error) setRules(r.data); if (!n.error) setNames(n.data);
+  }, []);
+  const loadAll = useCallback(async preferDate => {
+    try {
+      const { data, error } = await sb.from("card_statements").select("*").order("billing_date", { ascending: false });
+      if (error) throw error;
+      const all = await loadAllTx();
+      setStatements(data); setTxs(all);
+      const pick = (preferDate && data.find(s => s.billing_date === preferDate)) || data[0];
+      setStmtId(id => preferDate ? pick && pick.id : (data.some(s => s.id === id) ? id : pick && pick.id));
+      return all;
+    } catch (e) { setErr(e.message); return []; }
   }, []);
   useEffect(() => {
-    sb.from("card_members").select("*").eq("user_id", session.user.id).maybeSingle().then(({ data, error }) => {
+    (async () => {
+      const { data, error } = await sb.from("card_members").select("*").eq("user_id", session.user.id).maybeSingle();
       if (error) setErr(error.message);
       setMe(data || null);
-      if (data) loadStatements();
-    });
+      if (data) {
+        const [all] = await Promise.all([loadAll(), reloadRules()]);
+        const pending = all.filter(t => t.cardholder === data.cardholder && t.judgment === "check" && !t.question).length;
+        setTab(data.role === "member" && pending ? "check" : "home");
+      }
+      setLoading(false);
+    })();
   }, [session.user.id]);
 
-  if (me === undefined) return <div className="wrap sub">読み込み中…</div>;
+  const updateTx = useCallback(async (id, patch) => {
+    try {
+      const { data, error } = await sb.from("card_transactions").update(patch).eq("id", id).select().single();
+      if (error) return error.message;
+      setTxs(ts => ts.map(t => t.id === id ? data : t));
+      return null;
+    } catch (e) { return "保存できませんでした：" + e.message; }
+  }, []);
+
+  if (me === undefined || (me && loading)) return <div className="wrap sub">読み込み中…</div>;
   if (me === null) return <div className="wrap"><div className="card">このアカウントはまだ登録されていません。としに連絡してください。
     <div><button className="link" onClick={() => sb.auth.signOut()}>ログアウト</button></div>{err && <div className="ngbox">{err}</div>}</div></div>;
-  const isOwner = me.role === "owner";
+  const checkCount = txs.filter(t => t.cardholder === me.cardholder && t.judgment === "check" && !t.question).length
+    + (me.role === "owner" ? txs.filter(t => t.question).length : 0);
+  const go = t => { setTab(t); window.scrollTo(0, 0); };
+  const tabs = [["home", "ホーム", Icon.home], ["check", "チェック", Icon.check], ["tx", "明細", Icon.list], ["analysis", "分析", Icon.chart], ["more", "その他", Icon.more]];
   return (
     <>
       <div className="wrap">
@@ -530,13 +989,16 @@ function Main({ session }) {
             <button className="link" onClick={() => sb.auth.signOut()}>ログアウト</button></span>
         </div>
         {err && <div className="ngbox">{err}</div>}
-        {tab === "tx" && <Transactions me={me} statements={statements} stmtId={stmtId} setStmtId={setStmtId} />}
-        {tab === "upload" && isOwner && <Upload statements={statements} onSaved={d => loadStatements(d)} />}
+        {tab === "home" && <Home me={me} statements={statements} txs={txs} stmtId={stmtId} setStmtId={setStmtId} go={go} />}
+        {tab === "check" && <Check me={me} txs={txs} updateTx={updateTx} />}
+        {tab === "tx" && <Transactions me={me} statements={statements} txs={txs} stmtId={stmtId} setStmtId={setStmtId} updateTx={updateTx} rules={rules} reloadRules={reloadRules} />}
+        {tab === "analysis" && <Analysis me={me} statements={statements} txs={txs} />}
+        {tab === "more" && <More me={me} statements={statements} rules={rules} names={names} onSaved={d => loadAll(d)} />}
       </div>
       <div className="ver">{APP_VERSION}</div>
       <nav className="nav">
-        <button className={tab === "tx" ? "on" : ""} onClick={() => setTab("tx")}>{Icon.list}明細</button>
-        {isOwner && <button className={tab === "upload" ? "on" : ""} onClick={() => setTab("upload")}>{Icon.upload}取り込み</button>}
+        {tabs.map(([k, l, i]) => <button key={k} className={tab === k ? "on" : ""} onClick={() => go(k)}>
+          <span className="ni">{i}{k === "check" && checkCount > 0 && <span className="badge">{checkCount > 99 ? "99+" : checkCount}</span>}</span>{l}</button>)}
       </nav>
     </>
   );
