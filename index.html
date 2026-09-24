@@ -111,6 +111,14 @@ th{color:var(--t2);font-weight:600;font-size:12px}td.r,th.r{text-align:right;fon
 .workbar button{padding:10px;font-size:14px;font-weight:700;border-radius:10px}
 .memochips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .mchip{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--track);border:1px solid var(--line);color:var(--t1);text-align:left}
+.filebtn{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:12px;padding:14px 10px;font-size:15px;font-weight:700;cursor:pointer;text-align:center}
+.filebtn input{display:none}
+.rrow{display:flex;gap:10px;align-items:flex-start}
+.rthumb{width:64px;height:84px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:var(--track);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+.rthumb img{width:100%;height:100%;object-fit:cover}.rthumb.big{width:96px;height:128px}
+.cands{display:grid;gap:6px;margin-top:6px}
+.cands button{display:flex;gap:6px;align-items:center;text-align:left;font-size:13px;padding:10px}.cands .cm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav button{padding:10px 2px 12px;font-size:11px}
 .learn{background:var(--track);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px;display:grid;gap:4px}
 .nav .ni{position:relative;display:inline-flex}.badge{position:absolute;top:-6px;left:14px;background:var(--s2);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:0 5px;line-height:16px;min-width:16px;text-align:center}
 @media(max-width:520px){.grid4{grid-template-columns:1fr 1fr}.mini4 .v{font-size:15px}.catrow{grid-template-columns:118px 1fr 76px;gap:6px}}
@@ -220,7 +228,7 @@ function cardParseStatement(pages){
 }
 </script>
 <script type="text/babel" data-presets="react">
-const APP_VERSION = "2026-09-25-v0.5-memo";
+const APP_VERSION = "2026-09-25-v0.6-receipt";
 const SB_URL = "https://ckcykbvislsjwvkizkqc.supabase.co";
 const SB_KEY = "sb_publishable_5kDZMBvSMk2Cu8qz8IP9CQ_qWsN1C13"; // 公開用キー。データはRLSで守る
 const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "card-check-auth" } });
@@ -444,7 +452,7 @@ function Home({ me, statements, txs, stmtId, setStmtId, go }) {
 }
 
 // ---------- メモ入力の手間を減らす（定型・過去のメモ・探索記録） ----------
-const CardCtx = React.createContext({ txs: [], work: {} });
+const CardCtx = React.createContext({ txs: [], work: {}, receipts: [], setReceipts: () => {}, me: null });
 const MEMO_TEMPLATES = {
   "外食": ["打ち合わせ（相手：　／人数：　名）", "お客様と会食（相手：　／人数：　名）", "物件調査の途中の食事"],
   "_": ["物件調査（空き家・現地確認）", "お客様と打ち合わせ", "業者・取引先と打ち合わせ", "役所・法務局で調査", "事務所の備品", "物件の修繕・清掃用", "仕事の移動"],
@@ -590,7 +598,7 @@ function Check({ me, txs, updateTx }) {
 
 // ---------- 明細 ----------
 function Transactions({ me, statements, txs, stmtId, setStmtId, updateTx, rules, reloadRules }) {
-  const { work } = React.useContext(CardCtx);
+  const { work, receipts } = React.useContext(CardCtx);
   const [fHolder, setFHolder] = useState(""), [fCat, setFCat] = useState(""), [fJ, setFJ] = useState(""), [sort, setSort] = useState("date");
   const [edit, setEdit] = useState(null);
   const monthTx = useMemo(() => txs.filter(t => t.statement_id === stmtId).sort((a, b) => a.used_on.localeCompare(b.used_on) || a.id - b.id), [txs, stmtId]);
@@ -619,7 +627,7 @@ function Transactions({ me, statements, txs, stmtId, setStmtId, updateTx, rules,
               <div className="d num">{md(t.used_on)}<br /><span className="sw" style={{ background: HOLDERS[t.cardholder].color }}></span></div>
               <div className="m">
                 <div className="mn">{t.merchant}</div>
-                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} q={t.question} />{t.purpose_memo && <span className="small">📝</span>}{workOf(work, t) && <span className="small" title="地上げ探索の記録がある日">📍</span>}</div>
+                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} q={t.question} />{t.purpose_memo && <span className="small">📝</span>}{workOf(work, t) && <span className="small" title="地上げ探索の記録がある日">📍</span>}{receipts.some(r => r.transaction_id === t.id) && <span className="small" title="領収書あり">📎</span>}</div>
               </div>
               <div className={"a" + (t.amount < 0 ? " neg" : "")}>{yen(t.amount)}</div>
             </div>
@@ -709,6 +717,7 @@ function EditSheet({ me, tx, txs, rules, reloadRules, updateTx, onClose }) {
             <MemoHelper t={tx} memo={memo} setMemo={setMemo} /></>
             : <div>{tx.purpose_memo || <span className="small">なし</span>}</div>}
         </div>
+        <TxReceipts tx={tx} canEdit={canEdit} />
         {!canEdit && <div className="flag">これは{HOLDERS[tx.cardholder].name}さんの利用分なので、見るだけです。</div>}
         {err && <div className="ngbox">{err}</div>}
         {canEdit && <button className="primary" style={{ width: "100%", marginTop: 16 }} onClick={save} disabled={busy}>{busy ? "保存中…" : "保存する"}</button>}
@@ -987,6 +996,259 @@ function UploadItem({ it, statements, onSave }) {
   );
 }
 
+// ---------- 領収書（撮る → 読む → 明細とひも付け）----------
+// 紙の領収書は別途保管する前提。ここは探す・ひも付ける・「領収書なし」に気づくための控え。
+// 読み取りは端末内の無料OCR（Tesseract）。追加の料金はかからない。
+const RECEIPT_BUCKET = "card-receipts";
+// 明細書そのものが証拠になるもの（紙の領収書が出ない・要らないもの）は「領収書なし」一覧から外す
+const NO_RECEIPT_CATS = ["IT・サブスク", "通信費", "キャリア決済（ドコモ）", "保険", "光熱費", "高速・駐車場"];
+const needsReceipt = t => t.amount > 0 && t.judgment !== "private" && !NO_RECEIPT_CATS.includes(t.category);
+
+let ocrWorkerPromise = null;
+function getOcr() {
+  if (!ocrWorkerPromise) ocrWorkerPromise = new Promise((res, rej) => {
+    const go = () => Tesseract.createWorker("jpn").then(res, rej);
+    if (window.Tesseract) return go();
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    sc.onload = go; sc.onerror = () => rej(new Error("読み取りの準備に失敗しました"));
+    document.head.appendChild(sc);
+  }).catch(e => { ocrWorkerPromise = null; throw e; });
+  return ocrWorkerPromise;
+}
+// 読み取った文字 → 金額・日付
+function parseReceiptText(raw) {
+  const z = raw.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[，､]/g, ",").replace(/[￥]/g, "¥")
+    .replace(/(\d)[.．](\d{3})(?!\d)/g, "$1,$2"); // OCRはカンマをピリオドに読みがち（円に小数はない）
+  const lines = z.split(/\n/).map(l => l.replace(/(\d)\s+(?=[\d,])/g, "$1").replace(/,\s+(?=\d)/g, ","));
+  const num = s => { const m = s.match(/[¥\\]?\s*(\d{1,3}(?:,\d{3})+|\d{2,7})\s*円?/g); return m ? m.map(x => +x.replace(/[^\d]/g, "")).filter(n => n > 0 && n < 5000000) : []; };
+  let amount = null;
+  for (const re of [/(合\s*計|お\s*支\s*払|領\s*収\s*金\s*額|お\s*会\s*計|ご\s*請\s*求|御\s*請\s*求|税\s*込)/, /(小\s*計)/]) {
+    for (const l of lines) if (re.test(l)) { const n = num(l.split(re).pop()); if (n.length) { amount = n[n.length - 1]; break; } }
+    if (amount) break;
+  }
+  if (!amount) { const all = lines.flatMap(l => /[¥円]/.test(l) ? num(l) : []); if (all.length) amount = Math.max(...all); }
+  let date = null;
+  const t = z.replace(/\n/g, " "); // 日付は数字をくっつける前の文字から読む（「31 12:05」が「3112」にならないように）
+  let m;
+  if ((m = t.match(/(20\d{2})\s*[年\/.\-]\s*(\d{1,2})\s*[月\/.\-]\s*(\d{1,2})/))) date = [m[1], m[2], m[3]];
+  else if ((m = t.match(/令\s*和\s*(\d{1,2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})/))) date = [2018 + +m[1], m[2], m[3]];
+  else if ((m = t.match(/(?:^|\D)(2\d)[\/.](\d{1,2})[\/.](\d{1,2})(?:\D|$)/))) date = ["20" + m[1], m[2], m[3]];
+  const d = date && +date[1] >= 1 && +date[1] <= 12 && +date[2] >= 1 && +date[2] <= 31
+    ? `${date[0]}-${String(date[1]).padStart(2, "0")}-${String(date[2]).padStart(2, "0")}` : null;
+  return { amount, date: d };
+}
+const dayDiff = (a, b) => Math.round((new Date(a) - new Date(b)) / 86400000);
+// 読み取り結果 → 明細の候補（金額が同じ＆日付が近い順）
+function matchCandidates(txs, receipts, r, holder) {
+  const linked = new Set(receipts.filter(x => x.transaction_id).map(x => x.transaction_id));
+  let c = [];
+  if (r.amount) c = txs.filter(t => t.amount === r.amount);
+  else if (r.date) c = txs.filter(t => Math.abs(dayDiff(t.used_on, r.date)) <= 3);
+  if (r.date) c = c.filter(t => Math.abs(dayDiff(t.used_on, r.date)) <= 10);
+  const score = t => (r.date ? Math.abs(dayDiff(t.used_on, r.date)) : 5) + (t.cardholder === holder ? 0 : 3) + (linked.has(t.id) ? 20 : 0);
+  return c.map(t => ({ t, s: score(t) })).sort((a, b) => a.s - b.s).slice(0, 5).map(x => x.t);
+}
+// 自動でひも付けてよいのは「金額が一致・日付が3日以内・候補が1件だけ」のとき
+function autoPick(cands, r) {
+  if (!r.amount || !r.date) return null;
+  const near = cands.filter(t => Math.abs(dayDiff(t.used_on, r.date)) <= 3);
+  return near.length === 1 ? near[0] : null;
+}
+async function fileToImages(file) {
+  const out = [];
+  const toBlob = cv => new Promise(res => cv.toBlob(res, "image/jpeg", 0.82));
+  const fit = (w, h, max = 1600) => { const k = Math.min(1, max / Math.max(w, h)); return [Math.round(w * k), Math.round(h * k)]; };
+  if (file.type === "application/pdf" || /\.pdf$/i.test(file.name)) {
+    const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+    for (let p = 1; p <= doc.numPages; p++) {
+      const page = await doc.getPage(p), vp0 = page.getViewport({ scale: 1 });
+      const [w] = fit(vp0.width * 2.2, vp0.height * 2.2), vp = page.getViewport({ scale: w / vp0.width });
+      const cv = document.createElement("canvas"); cv.width = vp.width; cv.height = vp.height;
+      await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+      out.push({ blob: await toBlob(cv), canvas: cv, name: `${file.name} p${p}` });
+    }
+  } else {
+    const bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const [w, h] = fit(bmp.width, bmp.height);
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    cv.getContext("2d").drawImage(bmp, 0, 0, w, h);
+    out.push({ blob: await toBlob(cv), canvas: cv, name: file.name });
+  }
+  return out;
+}
+function useSignedUrl(path) {
+  const [url, setUrl] = useState(null);
+  useEffect(() => { let a = true; sb.storage.from(RECEIPT_BUCKET).createSignedUrl(path, 3600).then(({ data }) => a && data && setUrl(data.signedUrl)); return () => { a = false; }; }, [path]);
+  return url;
+}
+function ReceiptThumb({ path, big }) {
+  const url = useSignedUrl(path);
+  return <a href={url || "#"} target="_blank" rel="noopener" className={"rthumb" + (big ? " big" : "")} onClick={e => { if (!url) e.preventDefault(); }}>
+    {url ? <img src={url} alt="領収書" /> : <span className="small">…</span>}</a>;
+}
+async function saveReceipt({ blob, read, txId, holder, text }) {
+  const path = `${new Date().toISOString().slice(0, 7)}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+  const up = await sb.storage.from(RECEIPT_BUCKET).upload(path, blob, { contentType: "image/jpeg" });
+  if (up.error) throw new Error("画像の保存に失敗：" + up.error.message);
+  const { data, error } = await sb.from("card_receipts").insert({ path, transaction_id: txId || null, read_date: read.date, read_amount: read.amount,
+    read_text: (text || "").slice(0, 2000), cardholder: holder }).select().single();
+  if (error) throw new Error("記録に失敗：" + error.message);
+  return data;
+}
+
+function CandidatePicker({ cands, onPick, busy }) {
+  if (!cands.length) return <div className="small">金額・日付が合う明細が見つかりませんでした。下で金額や日付を直すと探し直します。</div>;
+  return <div className="cands">{cands.map(t => <button key={t.id} disabled={busy} onClick={() => onPick(t)}>
+    <span className="sw" style={{ background: HOLDERS[t.cardholder].color }}></span>
+    <span className="num">{md(t.used_on)}</span> <span className="cm">{t.merchant}</span> <b className="num">{yen(t.amount)}</b></button>)}</div>;
+}
+function RetryBox({ read, onRetry }) {
+  const [amt, setAmt] = useState(read?.amount || ""), [dt, setDt] = useState(read?.date || "");
+  return <div className="ctrl" style={{ marginTop: 8 }}>
+    <input type="number" inputMode="numeric" placeholder="金額" value={amt} onChange={e => setAmt(e.target.value)} style={{ width: 110, flex: "none" }} />
+    <input type="date" value={dt} onChange={e => setDt(e.target.value)} style={{ width: 150, flex: "none" }} />
+    <button onClick={() => onRetry({ amount: amt ? +amt : null, date: dt || null })}>探し直す</button>
+  </div>;
+}
+
+function ReceiptItem({ it, onLink, onRetry }) {
+  const { txs } = React.useContext(CardCtx);
+  const tx = it.txId && txs.find(t => t.id === it.txId);
+  return <div className="card rcard">
+    <div className="rrow">
+      {it.preview && <img src={it.preview} className="rthumb" alt="" />}
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className="small">{it.name || ""}</div>
+        {it.state === "reading" && <div>🔍 読み取り中…（初回は準備に少し時間がかかります）</div>}
+        {it.state === "error" && <div className="ngbox">{it.error}</div>}
+        {it.read && <div className="sub">読み取り：<b>{it.read.date ? it.read.date.replace(/-/g, "/") : "日付？"}</b>・<b>{it.read.amount ? yen(it.read.amount) : "金額？"}</b></div>}
+        {tx && <div className="okbox" style={{ marginTop: 6 }}>✅ ひも付けました：{md(tx.used_on)} {tx.merchant} {yen(tx.amount)}</div>}
+      </div>
+    </div>
+    {it.state === "pick" && <>
+      <div style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>どの明細の領収書ですか？</div>
+      <CandidatePicker cands={it.cands} busy={it.busy} onPick={t => onLink(it, t)} />
+      <RetryBox read={it.read} onRetry={r => onRetry(it, r)} />
+    </>}
+  </div>;
+}
+
+function UnlinkedReceipt({ r, receipts, setReceipts, holder }) {
+  const { txs } = React.useContext(CardCtx);
+  const [read, setRead] = useState({ amount: r.read_amount, date: r.read_date });
+  const [busy, setBusy] = useState(false);
+  const cands = matchCandidates(txs, receipts, read, holder);
+  const link = async t => {
+    setBusy(true);
+    const { data, error } = await sb.from("card_receipts").update({ transaction_id: t.id }).eq("id", r.id).select().single();
+    setBusy(false);
+    if (!error) setReceipts(rs => rs.map(x => x.id === data.id ? data : x));
+  };
+  return <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10, marginTop: 10 }}>
+    <div className="rrow"><ReceiptThumb path={r.path} />
+      <div className="sub">読み取り：{r.read_date ? r.read_date.replace(/-/g, "/") : "日付？"}・{r.read_amount ? yen(r.read_amount) : "金額？"}</div></div>
+    <CandidatePicker cands={cands} busy={busy} onPick={link} />
+    <RetryBox read={read} onRetry={setRead} />
+  </div>;
+}
+
+function Receipts({ me, receipts, setReceipts }) {
+  const { txs } = React.useContext(CardCtx);
+  const [items, setItems] = useState([]);
+  const [showMissing, setShowMissing] = useState(false);
+  const upd = (key, patch) => setItems(xs => xs.map(x => x.key === key ? { ...x, ...patch } : x));
+  const linkedIds = new Set(receipts.filter(r => r.transaction_id).map(r => r.transaction_id));
+  const inSession = new Set(items.map(i => i.id));
+  const unlinked = receipts.filter(r => !r.transaction_id && !inSession.has(r.id));
+  const mine = t => me.role === "owner" || t.cardholder === me.cardholder;
+  const missing = txs.filter(t => mine(t) && needsReceipt(t) && !linkedIds.has(t.id)).sort((a, b) => b.used_on.localeCompare(a.used_on));
+
+  const process = async files => {
+    let known = receipts;
+    for (const f of files) {
+      let imgs;
+      try { imgs = await fileToImages(f); } catch (e) { setItems(xs => [{ key: Math.random(), name: f.name, state: "error", error: "画像を開けませんでした：" + e.message }, ...xs]); continue; }
+      for (const im of imgs) {
+        const key = Math.random();
+        setItems(xs => [{ key, name: im.name, preview: URL.createObjectURL(im.blob), state: "reading" }, ...xs]);
+        try {
+          const w = await getOcr();
+          const { data } = await w.recognize(im.canvas);
+          const read = parseReceiptText(data.text);
+          const cands = matchCandidates(txs, known, read, me.cardholder);
+          const pick = autoPick(cands, read);
+          const saved = await saveReceipt({ blob: im.blob, read, txId: pick && pick.id, holder: me.cardholder, text: data.text });
+          known = [...known, saved];
+          setReceipts(rs => [...rs, saved]);
+          upd(key, pick ? { state: "linked", read, txId: pick.id, id: saved.id } : { state: "pick", read, cands, id: saved.id });
+        } catch (e) { upd(key, { state: "error", error: e.message }); }
+      }
+    }
+  };
+  const onLink = async (it, t) => {
+    upd(it.key, { busy: true });
+    const { data, error } = await sb.from("card_receipts").update({ transaction_id: t.id }).eq("id", it.id).select().single();
+    if (error) return upd(it.key, { busy: false, state: "error", error: error.message });
+    setReceipts(rs => rs.map(r => r.id === data.id ? data : r));
+    upd(it.key, { busy: false, state: "linked", txId: t.id });
+  };
+  const onRetry = (it, read) => upd(it.key, { read: { ...it.read, ...read }, cands: matchCandidates(txs, receipts, read, me.cardholder) });
+  const pickFiles = e => { const fs = [...e.target.files]; e.target.value = ""; process(fs); };
+
+  return <>
+    <div className="card">
+      <h2>領収書を取り込む</h2>
+      <div className="bigbtns" style={{ marginTop: 6 }}>
+        <label className="filebtn b-work">📷 撮る<input type="file" accept="image/*" capture="environment" onChange={pickFiles} /></label>
+        <label className="filebtn b-ask">🗂 スキャン・写真を選ぶ（まとめてOK）<input type="file" accept="image/*,application/pdf" multiple onChange={pickFiles} /></label>
+      </div>
+      <div className="small" style={{ marginTop: 8 }}>金額と日付を読み取って、カード明細と自動でひも付けます。迷ったときは候補から選ぶだけ。<b>紙の領収書は今まで通り保管</b>してください（これは探す・確認するための控えです）。</div>
+    </div>
+    {items.map(it => <ReceiptItem key={it.key} it={it} onLink={onLink} onRetry={onRetry} />)}
+    {unlinked.length > 0 && <div className="card"><h2>ひも付けがまだの領収書（{unlinked.length}件）</h2>
+      {unlinked.map(r => <UnlinkedReceipt key={r.id} r={r} receipts={receipts} setReceipts={setReceipts} holder={me.cardholder} />)}
+    </div>}
+    <div className="card">
+      <div className="top"><h2 style={{ margin: 0 }}>領収書がまだない明細</h2><b className="num">{missing.length}件</b></div>
+      <div className="small">ETC・サブスク・通信費など明細書だけで足りるものと、私用の分は除いています。</div>
+      <button className="link" onClick={() => setShowMissing(v => !v)}>{showMissing ? "閉じる" : "一覧を見る"}</button>
+      {showMissing && <div className="list">{missing.slice(0, 200).map(t => <div className="tx" key={t.id} style={{ cursor: "default" }}>
+        <div className="d num">{md(t.used_on)}<br /><span className="sw" style={{ background: HOLDERS[t.cardholder].color }}></span></div>
+        <div className="m"><div className="mn">{t.merchant}</div><div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} q={t.question} /></div></div>
+        <div className="a">{yen(t.amount)}</div></div>)}</div>}
+    </div>
+  </>;
+}
+
+// 明細の編集画面に出す「この明細の領収書」
+function TxReceipts({ tx, canEdit }) {
+  const { receipts, setReceipts, me } = React.useContext(CardCtx);
+  const mine = receipts.filter(r => r.transaction_id === tx.id);
+  const [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const add = async e => {
+    const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+    setBusy(true); setErr("");
+    try {
+      const [im] = await fileToImages(f);
+      const saved = await saveReceipt({ blob: im.blob, read: { amount: tx.amount, date: tx.used_on }, txId: tx.id, holder: me.cardholder, text: "" });
+      setReceipts(rs => [...rs, saved]);
+    } catch (e2) { setErr(e2.message); }
+    setBusy(false);
+  };
+  const unlink = async r => {
+    const { data, error } = await sb.from("card_receipts").update({ transaction_id: null }).eq("id", r.id).select().single();
+    if (!error) setReceipts(rs => rs.map(x => x.id === data.id ? data : x));
+  };
+  return <div className="field"><label>領収書</label>
+    {mine.length ? <div className="rrow" style={{ flexWrap: "wrap" }}>{mine.map(r => <div key={r.id}><ReceiptThumb path={r.path} big />
+      {canEdit && <button className="link" onClick={() => unlink(r)}>外す</button>}</div>)}</div>
+      : <div className="small">{needsReceipt(tx) ? "⚠ まだ領収書がありません" : "（明細書だけで足りる支払いです）"}</div>}
+    {canEdit && <label className="filebtn b-ask" style={{ marginTop: 8 }}>{busy ? "保存中…" : "📷 この明細に領収書を付ける"}<input type="file" accept="image/*" capture="environment" onChange={add} disabled={busy} /></label>}
+    {err && <div className="ngbox">{err}</div>}
+  </div>;
+}
+
 // ---------- 全体 ----------
 const ic = d => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 const Icon = {
@@ -994,6 +1256,7 @@ const Icon = {
   check: ic(<><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></>),
   list: ic(<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />),
   chart: ic(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />),
+  receipt: ic(<><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z" /><path d="M9 7h6M9 11h6M9 15h4" /></>),
   more: ic(<><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>),
 };
 
@@ -1009,7 +1272,7 @@ async function loadAllTx() {
 
 function Main({ session }) {
   const [me, setMe] = useState(undefined), [statements, setStatements] = useState([]), [txs, setTxs] = useState([]), [stmtId, setStmtId] = useState(null);
-  const [rules, setRules] = useState([]), [names, setNames] = useState([]), [work, setWork] = useState({});
+  const [rules, setRules] = useState([]), [names, setNames] = useState([]), [work, setWork] = useState({}), [receipts, setReceipts] = useState([]);
   const [tab, setTab] = useState(null), [err, setErr] = useState(""), [loading, setLoading] = useState(true);
 
   const reloadRules = useCallback(async () => {
@@ -1034,6 +1297,7 @@ function Main({ session }) {
       setMe(data || null);
       if (data) {
         const [all] = await Promise.all([loadAll(), reloadRules()]);
+        sb.from("card_receipts").select("*").then(({ data: rc }) => rc && setReceipts(rc));
         if (data.role === "owner") sb.rpc("card_work_days").then(({ data: wd }) => wd && setWork(Object.fromEntries(wd.map(w => [w.day, w]))));
         const pending = all.filter(t => t.cardholder === data.cardholder && t.judgment === "check" && !t.question).length;
         setTab(data.role === "member" && pending ? "check" : "home");
@@ -1057,9 +1321,9 @@ function Main({ session }) {
   const checkCount = txs.filter(t => t.cardholder === me.cardholder && t.judgment === "check" && !t.question).length
     + (me.role === "owner" ? txs.filter(t => t.question).length : 0);
   const go = t => { setTab(t); window.scrollTo(0, 0); };
-  const tabs = [["home", "ホーム", Icon.home], ["check", "チェック", Icon.check], ["tx", "明細", Icon.list], ["analysis", "分析", Icon.chart], ["more", "その他", Icon.more]];
+  const tabs = [["home", "ホーム", Icon.home], ["check", "チェック", Icon.check], ["tx", "明細", Icon.list], ["receipt", "領収書", Icon.receipt], ["analysis", "分析", Icon.chart], ["more", "その他", Icon.more]];
   return (
-    <CardCtx.Provider value={{ txs, work }}>
+    <CardCtx.Provider value={{ txs, work, receipts, setReceipts, me }}>
       <div className="wrap">
         <div className="top hdr">
           <h1>カード明細チェック</h1>
@@ -1070,6 +1334,7 @@ function Main({ session }) {
         {tab === "home" && <Home me={me} statements={statements} txs={txs} stmtId={stmtId} setStmtId={setStmtId} go={go} />}
         {tab === "check" && <Check me={me} txs={txs} updateTx={updateTx} />}
         {tab === "tx" && <Transactions me={me} statements={statements} txs={txs} stmtId={stmtId} setStmtId={setStmtId} updateTx={updateTx} rules={rules} reloadRules={reloadRules} />}
+        {tab === "receipt" && <Receipts me={me} receipts={receipts} setReceipts={setReceipts} />}
         {tab === "analysis" && <Analysis me={me} statements={statements} txs={txs} />}
         {tab === "more" && <More me={me} statements={statements} rules={rules} names={names} onSaved={d => loadAll(d)} />}
       </div>
