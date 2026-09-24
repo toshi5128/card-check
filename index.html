@@ -107,6 +107,10 @@ th{color:var(--t2);font-weight:600;font-size:12px}td.r,th.r{text-align:right;fon
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;font-size:13px}.grid4 .num{font-weight:700;margin-top:2px}
 .principle{border-left:4px solid var(--ok)}
 .guiderow{padding:8px 0;border-bottom:1px solid var(--line)}.guiderow:last-child{border-bottom:none}.gj{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.workbar{background:var(--okbg);border-left:3px solid var(--ok);border-radius:8px;padding:10px 12px;font-size:13px;margin-top:10px;display:grid;gap:8px}
+.workbar button{padding:10px;font-size:14px;font-weight:700;border-radius:10px}
+.memochips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mchip{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--track);border:1px solid var(--line);color:var(--t1);text-align:left}
 .learn{background:var(--track);border-radius:8px;padding:8px 10px;margin-top:8px;font-size:13px;display:grid;gap:4px}
 .nav .ni{position:relative;display:inline-flex}.badge{position:absolute;top:-6px;left:14px;background:var(--s2);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:0 5px;line-height:16px;min-width:16px;text-align:center}
 @media(max-width:520px){.grid4{grid-template-columns:1fr 1fr}.mini4 .v{font-size:15px}.catrow{grid-template-columns:118px 1fr 76px;gap:6px}}
@@ -216,7 +220,7 @@ function cardParseStatement(pages){
 }
 </script>
 <script type="text/babel" data-presets="react">
-const APP_VERSION = "2026-09-25-v0.4-phase2";
+const APP_VERSION = "2026-09-25-v0.5-memo";
 const SB_URL = "https://ckcykbvislsjwvkizkqc.supabase.co";
 const SB_KEY = "sb_publishable_5kDZMBvSMk2Cu8qz8IP9CQ_qWsN1C13"; // 公開用キー。データはRLSで守る
 const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "card-check-auth" } });
@@ -439,6 +443,72 @@ function Home({ me, statements, txs, stmtId, setStmtId, go }) {
   );
 }
 
+// ---------- メモ入力の手間を減らす（定型・過去のメモ・探索記録） ----------
+const CardCtx = React.createContext({ txs: [], work: {} });
+const MEMO_TEMPLATES = {
+  "外食": ["打ち合わせ（相手：　／人数：　名）", "お客様と会食（相手：　／人数：　名）", "物件調査の途中の食事"],
+  "_": ["物件調査（空き家・現地確認）", "お客様と打ち合わせ", "業者・取引先と打ち合わせ", "役所・法務局で調査", "事務所の備品", "物件の修繕・清掃用", "仕事の移動"],
+};
+// 探索記録の地点 → 市区町村名（国土地理院。端末に覚えておく）
+let gsiMuniPromise = null;
+function loadGsiMuni() {
+  if (!gsiMuniPromise) gsiMuniPromise = new Promise(res => {
+    window.GSI = window.GSI || {};
+    const sc = document.createElement("script");
+    sc.src = "https://maps.gsi.go.jp/js/muni.js";
+    sc.onload = () => res(window.GSI.MUNI_ARRAY || {}); sc.onerror = () => res({});
+    document.head.appendChild(sc);
+  });
+  return gsiMuniPromise;
+}
+function usePlace(w) {
+  const key = w ? "card-place:" + w.day : null;
+  const [place, setPlace] = useState(() => { try { return key && localStorage.getItem(key); } catch { return null; } });
+  useEffect(() => {
+    if (!w || place) return;
+    let alive = true;
+    (async () => {
+      try {
+        const r = await (await fetch(`https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress?lat=${w.lat}&lon=${w.lng}`)).json();
+        const cd = r && r.results && r.results.muniCd;
+        const row = cd && (await loadGsiMuni())[String(+cd)];
+        const name = row ? row.split(",")[3].replace(/\s/g, "") : "";
+        if (name && alive) { setPlace(name); try { localStorage.setItem(key, name); } catch {} }
+      } catch {}
+    })();
+    return () => { alive = false; };
+  }, [key]);
+  return place;
+}
+const workOf = (work, t) => t && t.cardholder === "toshi" ? work[t.used_on] : null;
+function workMemo(w, place) { return `${place || ""}${place ? "で" : ""}物件調査（地上げ探索の記録あり）`; }
+function WorkBanner({ t, onApply, busy }) {
+  const { work } = React.useContext(CardCtx);
+  const w = workOf(work, t);
+  const place = usePlace(w);
+  if (!w) return null;
+  const h = w.minutes >= 60 ? `約${Math.round(w.minutes / 60)}時間` : `${w.minutes}分`;
+  return <div className="workbar"><div>📍 この日は<b>{place || "…"}</b>で地上げ探索の記録があります（{h}）</div>
+    {onApply && <button className="b-work" disabled={busy} onClick={() => onApply(workMemo(w, place))}>「{workMemo(w, place)}」で経費にする</button>}
+  </div>;
+}
+function MemoHelper({ t, memo, setMemo }) {
+  const { txs, work } = React.useContext(CardCtx);
+  const w = workOf(work, t);
+  const place = usePlace(w);
+  const past = [...new Set(txs.filter(x => x.id !== t.id && x.purpose_memo && x.cardholder === t.cardholder && x.merchant === t.merchant)
+    .sort((a, b) => b.used_on.localeCompare(a.used_on)).map(x => x.purpose_memo))].slice(0, 3);
+  const recent = [...new Set(txs.filter(x => x.id !== t.id && x.purpose_memo && x.cardholder === t.cardholder)
+    .sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || "")).map(x => x.purpose_memo))].filter(m => !past.includes(m)).slice(0, 3);
+  const tmpl = MEMO_TEMPLATES[t.category] || MEMO_TEMPLATES._;
+  const chips = [...(w ? [workMemo(w, place)] : []), ...past.map(m => "🕘 " + m), ...recent.map(m => "🕘 " + m), ...tmpl];
+  const pick = c => { const v = c.replace(/^🕘 /, ""); setMemo(memo && !memo.includes(v) ? memo + "／" + v : v); };
+  return <div className="memochips">
+    {chips.map((c, i) => <button key={i} type="button" className="mchip" onClick={() => pick(c)}>{c}</button>)}
+    <div className="small" style={{ width: "100%" }}>タップで入ります（🕘＝前に使ったメモ）。キーボードのマイクで話して入力してもOK。</div>
+  </div>;
+}
+
 // ---------- 経費チェック（1件ずつ） ----------
 function CheckCard({ t, mode, onDecide, onSkip }) {
   const [step, setStep] = useState("choose"), [memo, setMemo] = useState(t.purpose_memo || ""), [busy, setBusy] = useState(false), [err, setErr] = useState("");
@@ -452,6 +522,7 @@ function CheckCard({ t, mode, onDecide, onSkip }) {
       <div className="ba num">{yen(t.amount)}</div>
       <div className="meta"><span className="chip">{t.category}</span>{t.foreign_note && <span className="small">{t.foreign_note}</span>}</div>
       <div className="explain">💡 {explain(t.category)}</div>
+      <WorkBanner t={t} busy={busy} onApply={step === "choose" ? m => decide({ judgment: "expense", purpose_memo: m, question: false }) : null} />
       {t.question && <div className="flag">萌々恵さんから「わからない」と質問が来ています{t.purpose_memo ? `（メモ：${t.purpose_memo}）` : ""}</div>}
       {step === "choose" ? <div className="bigbtns">
         <button className="b-work" disabled={busy} onClick={() => setStep("memo")}>💼 仕事で使った</button>
@@ -462,7 +533,8 @@ function CheckCard({ t, mode, onDecide, onSkip }) {
           : <button className="b-ask" disabled={busy} onClick={() => decide({ question: true })}>🤔 わからない（としに聞く）</button>}
       </div> : <div>
         <div className="field"><label>何のため？（誰と・どこへ）{needMemo ? "　※外食は必ず書いてください" : ""}</label>
-          <textarea rows="2" autoFocus value={memo} onChange={e => setMemo(e.target.value)} placeholder="例：〇〇さんと打ち合わせ／△△の物件を見に行った" /></div>
+          <textarea rows="2" value={memo} onChange={e => setMemo(e.target.value)} placeholder="例：〇〇さんと打ち合わせ／△△の物件を見に行った" />
+          <MemoHelper t={t} memo={memo} setMemo={setMemo} /></div>
         <div className="bigbtns">
           <button className="b-work" disabled={busy || (needMemo && !memo.trim())} onClick={() => decide({ judgment: "expense", purpose_memo: memo.trim() || null, question: false })}>{busy ? "保存中…" : "これで決定"}</button>
           <button className="b-ask" disabled={busy} onClick={() => setStep("choose")}>戻る</button>
@@ -518,6 +590,7 @@ function Check({ me, txs, updateTx }) {
 
 // ---------- 明細 ----------
 function Transactions({ me, statements, txs, stmtId, setStmtId, updateTx, rules, reloadRules }) {
+  const { work } = React.useContext(CardCtx);
   const [fHolder, setFHolder] = useState(""), [fCat, setFCat] = useState(""), [fJ, setFJ] = useState(""), [sort, setSort] = useState("date");
   const [edit, setEdit] = useState(null);
   const monthTx = useMemo(() => txs.filter(t => t.statement_id === stmtId).sort((a, b) => a.used_on.localeCompare(b.used_on) || a.id - b.id), [txs, stmtId]);
@@ -546,7 +619,7 @@ function Transactions({ me, statements, txs, stmtId, setStmtId, updateTx, rules,
               <div className="d num">{md(t.used_on)}<br /><span className="sw" style={{ background: HOLDERS[t.cardholder].color }}></span></div>
               <div className="m">
                 <div className="mn">{t.merchant}</div>
-                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} q={t.question} />{t.purpose_memo && <span className="small">📝</span>}</div>
+                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} q={t.question} />{t.purpose_memo && <span className="small">📝</span>}{workOf(work, t) && <span className="small" title="地上げ探索の記録がある日">📍</span>}</div>
               </div>
               <div className={"a" + (t.amount < 0 ? " neg" : "")}>{yen(t.amount)}</div>
             </div>
@@ -618,6 +691,7 @@ function EditSheet({ me, tx, txs, rules, reloadRules, updateTx, onClose }) {
           </div>}
         </div>
         <div className="explain">💡 {explain(category)}</div>
+        <WorkBanner t={tx} onApply={canEdit ? m => { setJudgment("expense"); setMemo(m); } : null} />
 
         <div className="field"><label>経費になる？</label>
           {canEdit ? <div className="seg">
@@ -631,7 +705,8 @@ function EditSheet({ me, tx, txs, rules, reloadRules, updateTx, onClose }) {
           <input type="number" inputMode="numeric" min="0" max="100" value={ratio} onChange={e => setRatio(e.target.value)} style={{ width: 120 }} /></div>}
 
         <div className="field"><label>用途メモ（誰と・何のため）</label>
-          {canEdit ? <textarea rows="2" value={memo} onChange={e => setMemo(e.target.value)} placeholder="例：〇〇さんと打ち合わせ／△△の物件を見に行った" />
+          {canEdit ? <><textarea rows="2" value={memo} onChange={e => setMemo(e.target.value)} placeholder="例：〇〇さんと打ち合わせ／△△の物件を見に行った" />
+            <MemoHelper t={tx} memo={memo} setMemo={setMemo} /></>
             : <div>{tx.purpose_memo || <span className="small">なし</span>}</div>}
         </div>
         {!canEdit && <div className="flag">これは{HOLDERS[tx.cardholder].name}さんの利用分なので、見るだけです。</div>}
@@ -791,6 +866,8 @@ function Guide() {
         <div className="sub">{explain(c)}</div>
       </div>)}
     </div>)}
+    <div className="card"><h2>領収書に手書きしなくていい？</h2>
+      <p className="sub" style={{ margin: 0 }}>「何に使ったか」は、領収書に手書きする代わりに、このアプリの<b>用途メモ</b>に残す想定です。メモは明細と一緒にCSVで税理士さんに渡せます。外食（打ち合わせ・会食）は「誰と・何人で」まで書いておくと安心です。この運用で良いかは、税理士さんに一度確認してください。</p></div>
     <div className="card sub">最終的な判断は税理士さんに確認します。ここに書いてあるのは、迷わないための目安です。</div>
   </>;
 }
@@ -932,7 +1009,7 @@ async function loadAllTx() {
 
 function Main({ session }) {
   const [me, setMe] = useState(undefined), [statements, setStatements] = useState([]), [txs, setTxs] = useState([]), [stmtId, setStmtId] = useState(null);
-  const [rules, setRules] = useState([]), [names, setNames] = useState([]);
+  const [rules, setRules] = useState([]), [names, setNames] = useState([]), [work, setWork] = useState({});
   const [tab, setTab] = useState(null), [err, setErr] = useState(""), [loading, setLoading] = useState(true);
 
   const reloadRules = useCallback(async () => {
@@ -957,6 +1034,7 @@ function Main({ session }) {
       setMe(data || null);
       if (data) {
         const [all] = await Promise.all([loadAll(), reloadRules()]);
+        if (data.role === "owner") sb.rpc("card_work_days").then(({ data: wd }) => wd && setWork(Object.fromEntries(wd.map(w => [w.day, w]))));
         const pending = all.filter(t => t.cardholder === data.cardholder && t.judgment === "check" && !t.question).length;
         setTab(data.role === "member" && pending ? "check" : "home");
       }
@@ -981,7 +1059,7 @@ function Main({ session }) {
   const go = t => { setTab(t); window.scrollTo(0, 0); };
   const tabs = [["home", "ホーム", Icon.home], ["check", "チェック", Icon.check], ["tx", "明細", Icon.list], ["analysis", "分析", Icon.chart], ["more", "その他", Icon.more]];
   return (
-    <>
+    <CardCtx.Provider value={{ txs, work }}>
       <div className="wrap">
         <div className="top hdr">
           <h1>カード明細チェック</h1>
@@ -1000,7 +1078,7 @@ function Main({ session }) {
         {tabs.map(([k, l, i]) => <button key={k} className={tab === k ? "on" : ""} onClick={() => go(k)}>
           <span className="ni">{i}{k === "check" && checkCount > 0 && <span className="badge">{checkCount > 99 ? "99+" : checkCount}</span>}</span>{l}</button>)}
       </nav>
-    </>
+    </CardCtx.Provider>
   );
 }
 
