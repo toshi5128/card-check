@@ -1,0 +1,4 @@
+# 明細データ・PDFは絶対にリポジトリへ入れない
+*.pdf
+*.json
+!manifest.json

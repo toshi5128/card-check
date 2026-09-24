@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f5f2">
+<title>カード明細チェック</title>
+<style>
+:root{color-scheme:light;--bg:#f6f5f2;--surface:#fcfcfb;--line:#e4e2dc;--t1:#0b0b0b;--t2:#52514e;--t3:#8a8984;--s1:#2a78d6;--s2:#eb6834;
+  --warn:#b26a00;--warnbg:#fff4e0;--track:#efeee9;--ok:#1b8a5a;--okbg:#e6f4ec;--ng:#c8372d;--ngbg:#fdecea;
+  --j-expense:#1b8a5a;--j-expense-bg:#e6f4ec;--j-private:#6b6a66;--j-private-bg:#ecebe7;--j-split:#2a78d6;--j-split-bg:#e7f0fb;--j-check:#9a5c00;--j-check-bg:#fff1d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111110;--surface:#1a1a19;--line:#2e2d2b;--t1:#fff;--t2:#c3c2b7;--t3:#8f8e87;--s1:#3987e5;--s2:#d95926;
+  --warn:#f0b04a;--warnbg:#2b2210;--track:#262624;--ok:#4cc38a;--okbg:#12291e;--ng:#f07167;--ngbg:#2e1513;
+  --j-expense:#4cc38a;--j-expense-bg:#12291e;--j-private:#a9a8a1;--j-private-bg:#262624;--j-split:#6aa8f0;--j-split-bg:#142438;--j-check:#f0b04a;--j-check-bg:#2b2210}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#111110;--surface:#1a1a19;--line:#2e2d2b;--t1:#fff;--t2:#c3c2b7;--t3:#8f8e87;--s1:#3987e5;--s2:#d95926;
+  --warn:#f0b04a;--warnbg:#2b2210;--track:#262624;--ok:#4cc38a;--okbg:#12291e;--ng:#f07167;--ngbg:#2e1513;
+  --j-expense:#4cc38a;--j-expense-bg:#12291e;--j-private:#a9a8a1;--j-private-bg:#262624;--j-split:#6aa8f0;--j-split-bg:#142438;--j-check:#f0b04a;--j-check-bg:#2b2210}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--t1);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:920px;margin:0 auto;padding:16px 16px 96px}
+h1{font-size:18px;margin:0;white-space:nowrap}h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--t2);font-size:13px}.small{font-size:12px;color:var(--t3)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}.hdr{flex-wrap:wrap;row-gap:0}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.tile .l{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.tile .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sw{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+select,button,input,textarea{font:inherit;font-size:14px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--t1)}
+button{cursor:pointer}button:disabled{opacity:.5;cursor:default}
+button.primary{background:var(--t1);color:var(--bg);border-color:var(--t1);font-weight:600}
+button.link{border:none;background:none;color:var(--t2);padding:4px 6px;text-decoration:underline}
+input[type=email],input[type=password],textarea{width:100%}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap}.ctrl select{flex:1 1 140px;min-width:0}
+.list{margin-top:10px}
+.tx{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.tx:active,.tx:hover{background:var(--track)}
+.tx .d{font-size:12px;color:var(--t2);text-align:center;line-height:1.3}
+.tx .m{min-width:0}.tx .mn{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px}
+.tx .a{text-align:right;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{font-size:11px;color:var(--t2);background:var(--track);border-radius:999px;padding:1px 8px;white-space:nowrap}
+.jb{font-size:11px;border-radius:999px;padding:1px 8px;white-space:nowrap;font-weight:600}
+.j-expense{color:var(--j-expense);background:var(--j-expense-bg)}.j-private{color:var(--j-private);background:var(--j-private-bg)}
+.j-split{color:var(--j-split);background:var(--j-split-bg)}.j-check{color:var(--j-check);background:var(--j-check-bg)}
+.neg{color:var(--ok)}
+.flag{background:var(--warnbg);border-left:3px solid var(--warn);padding:10px 12px;border-radius:6px;font-size:13px;margin-top:10px}
+.okbox{background:var(--okbg);border-left:3px solid var(--ok);padding:10px 12px;border-radius:6px;font-size:13px;margin-top:10px}
+.ngbox{background:var(--ngbg);border-left:3px solid var(--ng);padding:10px 12px;border-radius:6px;font-size:13px;margin-top:10px}
+.ngbox ul,.okbox ul{margin:4px 0 0;padding-left:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--t2);font-weight:600;font-size:12px}td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl{max-height:360px;overflow:auto;margin-top:8px}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+.nav button{flex:1;max-width:200px;border:none;background:none;border-radius:0;padding:10px 4px 12px;font-size:12px;color:var(--t3);display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button.on{color:var(--t1);font-weight:700}
+.nav svg{width:22px;height:22px}
+.ver{position:fixed;right:8px;bottom:calc(64px + env(safe-area-inset-bottom));font-size:10px;color:var(--t3);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:1px 8px;z-index:4;opacity:.85}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.field{margin-top:14px}.field>label{display:block;font-size:12px;color:var(--t2);margin-bottom:4px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.seg button{padding:10px 6px;font-size:13px}
+.seg button.on{outline:2px solid currentColor;outline-offset:-2px;font-weight:700}
+.login{max-width:360px;margin:12vh auto 0}
+.who{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);white-space:nowrap}
+.catbar{display:grid;grid-template-columns:120px 1fr 84px;gap:8px;align-items:center;font-size:12px;padding:3px 0}
+.catbar .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.catbar .a{text-align:right;font-variant-numeric:tabular-nums}
+.bar{display:flex;height:10px;border-radius:4px;overflow:hidden;background:var(--track)}
+.disclaimer{font-size:12px;color:var(--t3);margin-top:18px;text-align:center}
+@media(max-width:520px){.tiles{grid-template-columns:1fr 1fr;gap:8px}.tiles .tile:first-child{grid-column:1/-1}.tile{padding:10px 12px}.tile .v{font-size:19px}.catbar{grid-template-columns:96px 1fr 76px}}
+</style>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ===== セゾン明細パーサー（pdf.js の getTextContent 結果 → 明細データ）=====
+// 画面の外でも動くよう素のJSで書いている（Nodeで実PDFを使ったテスト済み）
+function cardPdfRows(pages){
+  const out=[];
+  for(const pg of pages){
+    const rows=[];
+    for(const it of pg.items){
+      if(!it.str||!it.str.trim()) continue;
+      const x=it.transform[4], y=it.transform[5];
+      let r=rows.find(r=>Math.abs(r.y-y)<2.5);
+      if(!r){ r={y,cells:[]}; rows.push(r); }
+      r.cells.push({x,s:it.str.trim()});
+    }
+    rows.sort((a,b)=>b.y-a.y);
+    for(const r of rows){ r.cells.sort((a,b)=>a.x-b.x); out.push(r.cells.map(c=>c.s)); }
+  }
+  return out;
+}
+const cardNum=s=>parseInt(String(s).replace(/[\s,円]/g,''),10);
+// 表示名の元になるキー：QP/（QUICPay）を外し、空白を1つに揃える
+function cardCleanMerchant(raw){ return raw.replace(/\s+/g,' ').replace(/^QP\//,'').trim(); }
+function cardHolderOf(name){
+  if(/モモエ|萌々恵|ももえ/.test(name)) return 'momoe';
+  if(/敏徳|トシノリ|としのり/.test(name)) return 'toshi';
+  return null;
+}
+function cardParseStatement(pages){
+  const rows=cardPdfRows(pages);
+  const res={total:null,billing_date:null,subtotal:{},txs:[],errors:[],warnings:[]};
+  let who=null, last=null, done=false;
+  for(const cells of rows){
+    const line=cells.join(' ');
+    const flat=line.replace(/\s/g,'');
+    if(res.total==null && /^ご請求金額/.test(flat)){
+      const m=flat.match(/ご請求金額(-?[\d,]+)円/); if(m) res.total=cardNum(m[1]); continue;
+    }
+    if(!res.billing_date && /^お支払日/.test(flat)){
+      const m=flat.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+      if(m) res.billing_date=`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`; continue;
+    }
+    if(done) continue;
+    const um=flat.match(/^ご利用者名[:：](.+?)様/);
+    if(um){ who=cardHolderOf(um[1]); if(!who) res.errors.push(`利用者名を判別できません：${um[1]}`); last=null; continue; }
+    if(!who) continue;
+    // 家族カードの小計行は「【小計】 1 426976」のように家族印が混ざるので最後のセルを金額とする
+    if(/^【小計】/.test(flat)){ res.subtotal[who]=cardNum(cells[cells.length-1]); last=null; continue; }
+    if(/^【合計】/.test(flat)){ last=null; continue; }
+    if(/^\d+\/\d+$/.test(flat)||/^ご利用明細$|^ご利用$|^年月日|^ご利用店名|^「/.test(flat)) continue;
+    // 取引行：先頭が「数字とスペースで8桁」の日付
+    const d=cells[0].replace(/\s/g,'');
+    if(/^\d{8}$/.test(d) && cells.length>=3){
+      const iPay=cells.findIndex((c,i)=>i>0 && /^\d*回$|^リボ|^分割|^ボーナス/.test(c.replace(/\s/g,'')));
+      if(iPay<0 || iPay+1>=cells.length){ res.errors.push(`読めない行：${line}`); continue; }
+      let mCells=cells.slice(1,iPay);
+      let family=false;
+      if(mCells.length>1 && mCells[mCells.length-1]==='1'){ family=true; mCells=mCells.slice(0,-1); }
+      if(cells[iPay].replace(/\s/g,'')!=='1回') res.warnings.push(`1回払い以外の行：${line}`);
+      const amount=cardNum(cells[iPay+1]);
+      if(isNaN(amount)){ res.errors.push(`金額が読めない行：${line}`); continue; }
+      const raw=mCells.join(' ');
+      const note=cells.slice(iPay+2).join(' ');
+      if(family && who!=='momoe') res.warnings.push(`家族カード印があるのに本会員の欄：${line}`);
+      last={used_on:`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`, merchant_raw:raw, name_key:cardCleanMerchant(raw),
+            amount, cardholder:who, foreign_note: note||null};
+      res.txs.push(last); continue;
+    }
+    // 外貨の続き行（例：「(SINGAPORE) 円換算レート:8/23 165.1200」）
+    if(last && last.foreign_note!=null){ last.foreign_note=(last.foreign_note+' '+line).trim(); continue; }
+    if(/規約|第\d+条/.test(flat)){ done=true; continue; }
+  }
+  for(const t of res.txs){
+    if(!t.foreign_note) continue;
+    const a=t.foreign_note.match(/現地通貨額[:：]\s*([\d.,]+)\s*([A-Z]{3})/);
+    const r=t.foreign_note.match(/円換算レート[:：]\s*(\d+\/\d+)\s*([\d.]+)/);
+    if(a) t.foreign_note=`${a[1]} ${a[2]}`+(r?` / ${r[1]} ${Number(r[2])}円`:'');
+  }
+  // 検算：利用者ごとの合計＝【小計】、総額＝ご請求金額
+  if(res.total==null) res.errors.push('ご請求金額が見つかりません');
+  if(!res.billing_date) res.errors.push('お支払日が見つかりません');
+  const sums={};
+  for(const t of res.txs) sums[t.cardholder]=(sums[t.cardholder]||0)+t.amount;
+  res.sums=sums;
+  const nm=k=>k==='toshi'?'敏徳':'萌々恵';
+  for(const k of new Set([...Object.keys(sums),...Object.keys(res.subtotal)])){
+    if(res.subtotal[k]==null) res.errors.push(`${nm(k)}の【小計】が見つかりません`);
+    else if(res.subtotal[k]!==(sums[k]||0)) res.errors.push(`${nm(k)}：明細の合計 ${(sums[k]||0).toLocaleString()}円 ≠ 小計 ${res.subtotal[k].toLocaleString()}円（差 ${((sums[k]||0)-res.subtotal[k]).toLocaleString()}円）`);
+  }
+  const all=Object.values(sums).reduce((a,b)=>a+b,0);
+  if(res.total!=null && all!==res.total) res.errors.push(`明細の総額 ${all.toLocaleString()}円 ≠ ご請求金額 ${res.total.toLocaleString()}円（差 ${(all-res.total).toLocaleString()}円）`);
+  if(!res.txs.length) res.errors.push('利用明細の行が1件も見つかりません（セゾンの明細PDFか確認してください）');
+  res.ok=res.errors.length===0;
+  return res;
+}
+</script>
+<script type="text/babel" data-presets="react">
+const APP_VERSION = "2026-09-24-v0.1-phase1";
+const SB_URL = "https://ckcykbvislsjwvkizkqc.supabase.co";
+const SB_KEY = "sb_publishable_5kDZMBvSMk2Cu8qz8IP9CQ_qWsN1C13"; // 公開用キー。データはRLSで守る
+const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "card-check-auth" } });
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const { useState, useEffect, useMemo, useCallback } = React;
+
+const HOLDERS = { toshi: { name: "敏徳", color: "var(--s1)" }, momoe: { name: "萌々恵", color: "var(--s2)" } };
+const CATEGORY_GROUPS = [
+  ["移動・車", ["旅行（移動・宿）", "電車・タクシー", "ガソリン", "高速・駐車場", "車の部品・用品"]],
+  ["仕事・固定費", ["IT・サブスク", "通信費", "キャリア決済（ドコモ）", "保険", "光熱費", "役所手数料"]],
+  ["食費", ["食料品（スーパー）", "食料品（お米・食材通販）", "外食"]],
+  ["買い物", ["ネット通販", "衣類・雑貨・コスメ", "ホームセンター・雑貨", "ドラッグストア", "コンビニ・日用品"]],
+  ["暮らし", ["医療・サプリ", "美容サロン", "娯楽・レジャー", "ペット", "その他・不明"]],
+];
+const CATEGORIES = CATEGORY_GROUPS.flatMap(g => g[1]);
+const JUDGMENTS = {
+  expense: { label: "経費になる", short: "経費" },
+  private: { label: "私用（経費にならない）", short: "私用" },
+  split:   { label: "一部だけ経費（按分）", short: "按分" },
+  check:   { label: "要確認（使い道による）", short: "要確認" },
+};
+const yen = n => (n < 0 ? "−" : "") + Math.abs(n).toLocaleString("ja-JP") + "円";
+const md = d => { const [, m, dd] = d.split("-"); return `${+m}/${+dd}`; };
+const monthLabel = bd => { const [y, m] = bd.split("-"); return `${y}年${+m}月引落し`; };
+
+// 店名 → 表示名・カテゴリ
+function makeClassifier(rules, names) {
+  const sorted = [...rules].sort((a, b) => a.priority - b.priority || a.id - b.id);
+  const nameMap = Object.fromEntries(names.map(n => [n.name_key, n.display]));
+  return t => {
+    const display = nameMap[t.name_key] || t.name_key;
+    const hit = sorted.find(r => t.merchant_raw.includes(r.pattern) || display.includes(r.pattern));
+    return { merchant: display, category: hit ? hit.category : "その他・不明" };
+  };
+}
+
+function Judge({ j }) {
+  return <span className={"jb j-" + j}>{j === "check" ? "⚠ " : ""}{JUDGMENTS[j].short}</span>;
+}
+function Who({ h }) {
+  return <span className="who"><span className="sw" style={{ background: HOLDERS[h].color }}></span>{HOLDERS[h].name}</span>;
+}
+
+// ---------- ログイン ----------
+function Login() {
+  const [email, setEmail] = useState(""), [pw, setPw] = useState(""), [err, setErr] = useState(""), [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault(); setBusy(true); setErr("");
+    const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password: pw });
+    setBusy(false);
+    if (error) setErr(/Invalid login/i.test(error.message) ? "メールアドレスかパスワードが違います" : error.message);
+  };
+  return (
+    <div className="wrap"><div className="login card">
+      <h1>カード明細チェック</h1>
+      <p className="sub" style={{ margin: "4px 0 12px" }}>セゾン ビジネスカードの明細を2人で確認するアプリです</p>
+      <form onSubmit={submit}>
+        <div className="field"><label>メールアドレス</label><input type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required /></div>
+        <div className="field"><label>パスワード</label><input type="password" autoComplete="current-password" value={pw} onChange={e => setPw(e.target.value)} required /></div>
+        {err && <div className="ngbox">{err}</div>}
+        <button className="primary" style={{ width: "100%", marginTop: 16 }} disabled={busy}>{busy ? "ログイン中…" : "ログイン"}</button>
+      </form>
+    </div></div>
+  );
+}
+
+// ---------- 明細 ----------
+function Transactions({ me, statements, stmtId, setStmtId }) {
+  const [txs, setTxs] = useState(null), [err, setErr] = useState("");
+  const [fHolder, setFHolder] = useState(""), [fCat, setFCat] = useState(""), [fJ, setFJ] = useState(""), [sort, setSort] = useState("date");
+  const [edit, setEdit] = useState(null);
+  const stmt = statements.find(s => s.id === stmtId);
+
+  useEffect(() => {
+    if (!stmtId) return;
+    setTxs(null); setErr("");
+    sb.from("card_transactions").select("*").eq("statement_id", stmtId).order("used_on").order("id")
+      .then(({ data, error }) => { if (error) setErr(error.message); else setTxs(data); });
+  }, [stmtId]);
+
+  const shown = useMemo(() => {
+    if (!txs) return [];
+    let a = txs.filter(t => (!fHolder || t.cardholder === fHolder) && (!fCat || t.category === fCat) && (!fJ || t.judgment === fJ));
+    if (sort === "amount") a = [...a].sort((x, y) => y.amount - x.amount);
+    return a;
+  }, [txs, fHolder, fCat, fJ, sort]);
+  const shownSum = shown.reduce((s, t) => s + t.amount, 0);
+  const catsInMonth = useMemo(() => txs ? CATEGORIES.filter(c => txs.some(t => t.category === c)) : [], [txs]);
+
+  if (!statements.length) return <div className="card">まだ明細がありません。{me.role === "owner" ? "「取り込み」からPDFを読み込んでください。" : ""}</div>;
+  return (
+    <>
+      <div className="card" style={{ paddingBottom: 12 }}>
+        <select value={stmtId || ""} onChange={e => setStmtId(+e.target.value)} style={{ width: "100%", fontWeight: 600 }}>
+          {statements.map(s => <option key={s.id} value={s.id}>{monthLabel(s.billing_date)}</option>)}
+        </select>
+        {stmt && <div className="tiles" style={{ marginTop: 10 }}>
+          <div className="tile"><div className="l">ご請求額</div><div className="v">{yen(stmt.total)}</div></div>
+          <div className="tile"><div className="l"><span className="sw" style={{ background: HOLDERS.toshi.color }}></span>敏徳</div><div className="v">{yen(stmt.subtotal_toshi)}</div></div>
+          <div className="tile"><div className="l"><span className="sw" style={{ background: HOLDERS.momoe.color }}></span>萌々恵</div><div className="v">{yen(stmt.subtotal_momoe)}</div></div>
+        </div>}
+      </div>
+      <div className="card">
+        <div className="ctrl">
+          <select value={fHolder} onChange={e => setFHolder(e.target.value)}>
+            <option value="">2人とも</option><option value="toshi">敏徳</option><option value="momoe">萌々恵</option>
+          </select>
+          <select value={fCat} onChange={e => setFCat(e.target.value)}>
+            <option value="">すべてのカテゴリ</option>{catsInMonth.map(c => <option key={c}>{c}</option>)}
+          </select>
+          <select value={fJ} onChange={e => setFJ(e.target.value)}>
+            <option value="">すべての判定</option>{Object.entries(JUDGMENTS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          </select>
+          <select value={sort} onChange={e => setSort(e.target.value)}>
+            <option value="date">日付順</option><option value="amount">金額の大きい順</option>
+          </select>
+        </div>
+        <div className="sub" style={{ marginTop: 8 }}>{txs ? <><span className="num">{shown.length}</span>件・合計 <b className="num">{yen(shownSum)}</b></> : "読み込み中…"}</div>
+        {err && <div className="ngbox">{err}</div>}
+        <div className="list">
+          {shown.map(t => (
+            <div className="tx" key={t.id} onClick={() => setEdit(t)}>
+              <div className="d num">{md(t.used_on)}<br /><span className="sw" style={{ background: HOLDERS[t.cardholder].color }}></span></div>
+              <div className="m">
+                <div className="mn">{t.merchant}</div>
+                <div className="meta"><span className="chip">{t.category}</span><Judge j={t.judgment} />{t.purpose_memo && <span className="small">📝</span>}</div>
+              </div>
+              <div className={"a" + (t.amount < 0 ? " neg" : "")}>{yen(t.amount)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="disclaimer">経費かどうかの判定は目安です。最終的な判断は顧問税理士に確認します。</p>
+      {edit && <EditSheet me={me} tx={edit} onClose={() => setEdit(null)}
+        onSaved={nt => { setTxs(ts => ts.map(t => t.id === nt.id ? nt : t)); setEdit(null); }} />}
+    </>
+  );
+}
+
+function EditSheet({ me, tx, onClose, onSaved }) {
+  const isOwner = me.role === "owner";
+  const canEdit = isOwner || tx.cardholder === me.cardholder;
+  const [category, setCategory] = useState(tx.category);
+  const [judgment, setJudgment] = useState(tx.judgment);
+  const [ratio, setRatio] = useState(tx.split_ratio != null ? Math.round(tx.split_ratio * 100) : 50);
+  const [memo, setMemo] = useState(tx.purpose_memo || "");
+  const [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  const save = async () => {
+    setBusy(true); setErr("");
+    const patch = { judgment, split_ratio: judgment === "split" ? Math.min(100, Math.max(0, +ratio)) / 100 : null, purpose_memo: memo.trim() || null };
+    if (isOwner) { patch.category = category; if (judgment !== tx.judgment || patch.split_ratio !== tx.split_ratio) patch.judgment_source = "manual"; }
+    try {
+      const { data, error } = await sb.from("card_transactions").update(patch).eq("id", tx.id).select().single();
+      if (error) setErr(error.message); else onSaved(data);
+    } catch (e) { setErr("保存できませんでした：" + e.message); }
+    setBusy(false);
+  };
+  return (
+    <div className="sheet-bg" onClick={onClose}>
+      <div className="sheet" onClick={e => e.stopPropagation()}>
+        <div className="top"><Who h={tx.cardholder} /><button className="link" onClick={onClose}>閉じる</button></div>
+        <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>{tx.merchant}</div>
+        <div className="num" style={{ fontSize: 22, fontWeight: 700 }}>{yen(tx.amount)}</div>
+        <div className="small">{tx.used_on.replace(/-/g, "/")} ・ 明細の表記：{tx.merchant_raw}{tx.foreign_note ? ` ・ ${tx.foreign_note}` : ""}</div>
+
+        <div className="field"><label>カテゴリ</label>
+          {isOwner ? <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: "100%" }}>
+            {CATEGORY_GROUPS.map(([g, cs]) => <optgroup key={g} label={g}>{cs.map(c => <option key={c}>{c}</option>)}</optgroup>)}
+          </select> : <div>{tx.category}</div>}
+        </div>
+
+        <div className="field"><label>経費になる？</label>
+          {canEdit ? <div className="seg">
+            {Object.entries(JUDGMENTS).map(([k, v]) =>
+              <button key={k} className={"j-" + k + (judgment === k ? " on" : "")} onClick={() => setJudgment(k)}>{v.label}</button>)}
+          </div> : <Judge j={tx.judgment} />}
+          {tx.judgment_source === "manual" && <div className="small" style={{ marginTop: 4 }}>手で入力した判定です</div>}
+        </div>
+        {canEdit && judgment === "split" && <div className="field"><label>仕事で使った割合（%）</label>
+          <input type="number" inputMode="numeric" min="0" max="100" value={ratio} onChange={e => setRatio(e.target.value)} style={{ width: 120 }} /></div>}
+
+        <div className="field"><label>用途メモ（誰と・何のため）</label>
+          {canEdit ? <textarea rows="2" value={memo} onChange={e => setMemo(e.target.value)} placeholder="例：〇〇さんと打ち合わせ／△△の物件を見に行った" />
+            : <div>{tx.purpose_memo || <span className="small">なし</span>}</div>}
+        </div>
+        {!canEdit && <div className="flag">これは{HOLDERS[tx.cardholder].name}さんの利用分なので、見るだけです。</div>}
+        {err && <div className="ngbox">{err}</div>}
+        {canEdit && <button className="primary" style={{ width: "100%", marginTop: 16 }} onClick={save} disabled={busy}>{busy ? "保存中…" : "保存する"}</button>}
+      </div>
+    </div>
+  );
+}
+
+// ---------- 取り込み（オーナーのみ） ----------
+async function readPdf(file) {
+  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const pages = [];
+  for (let p = 1; p <= doc.numPages; p++) pages.push(await (await doc.getPage(p)).getTextContent());
+  return cardParseStatement(pages);
+}
+
+function Upload({ statements, onSaved }) {
+  const [items, setItems] = useState([]);
+  const [cls, setCls] = useState(null), [loadErr, setLoadErr] = useState("");
+  useEffect(() => {
+    Promise.all([sb.from("card_merchant_rules").select("*"), sb.from("card_merchant_names").select("*")]).then(([r, n]) => {
+      if (r.error || n.error) setLoadErr((r.error || n.error).message); else setCls(() => makeClassifier(r.data, n.data));
+    });
+  }, []);
+
+  const pick = async e => {
+    const files = [...e.target.files]; e.target.value = "";
+    const list = files.map(f => ({ key: f.name + f.size + Math.random(), name: f.name, state: "reading" }));
+    setItems(list);
+    for (const it of list) {
+      const f = files[list.indexOf(it)];
+      let upd;
+      try {
+        const res = await readPdf(f);
+        res.txs = res.txs.map(t => ({ ...t, ...cls(t) }));
+        upd = { state: "parsed", res };
+      } catch (err) { upd = { state: "error", error: "PDFを読めませんでした：" + err.message }; }
+      setItems(xs => xs.map(x => x.key === it.key ? { ...x, ...upd } : x));
+    }
+  };
+  const save = async it => {
+    const r = it.res, ds = r.txs.map(t => t.used_on).sort();
+    const exists = statements.some(s => s.billing_date === r.billing_date);
+    setItems(xs => xs.map(x => x.key === it.key ? { ...x, state: "saving" } : x));
+    const p = {
+      billing_date: r.billing_date, total: r.total, subtotal_toshi: r.subtotal.toshi || 0, subtotal_momoe: r.subtotal.momoe || 0,
+      period_from: ds[0], period_to: ds[ds.length - 1],
+      transactions: r.txs.map(t => ({ used_on: t.used_on, merchant_raw: t.merchant_raw, merchant: t.merchant, amount: t.amount, cardholder: t.cardholder, category: t.category, foreign_note: t.foreign_note })),
+    };
+    let error;
+    try { ({ error } = await sb.rpc("card_save_statement", { p, p_overwrite: exists })); }
+    catch (e) { error = { message: "保存できませんでした：" + e.message }; }
+    setItems(xs => xs.map(x => x.key === it.key ? { ...x, state: error ? "parsed" : "saved", saveError: error && error.message } : x));
+    if (!error) onSaved(r.billing_date);
+  };
+
+  return (
+    <>
+      <div className="card">
+        <h2>明細PDFを取り込む</h2>
+        <p className="sub" style={{ marginTop: 0 }}>セゾンの「ご利用明細書」PDFを選んでください（複数まとめて選べます）。読み取りはこの端末の中だけで行い、PDFそのものは保存しません。カード番号・口座番号も保存しません。</p>
+        {loadErr && <div className="ngbox">{loadErr}</div>}
+        <input type="file" accept="application/pdf,.pdf" multiple onChange={pick} disabled={!cls} style={{ width: "100%" }} />
+      </div>
+      {items.map(it => <UploadItem key={it.key} it={it} statements={statements} onSave={() => save(it)} />)}
+    </>
+  );
+}
+
+function UploadItem({ it, statements, onSave }) {
+  const [confirmOverwrite, setConfirmOverwrite] = useState(false), [showRows, setShowRows] = useState(false);
+  if (it.state === "reading") return <div className="card">{it.name}：読み取り中…</div>;
+  if (it.state === "error") return <div className="card"><b>{it.name}</b><div className="ngbox">{it.error}</div></div>;
+  const r = it.res;
+  const exists = statements.some(s => s.billing_date === r.billing_date);
+  const byCat = {};
+  for (const t of r.txs) { const c = byCat[t.category] || (byCat[t.category] = { toshi: 0, momoe: 0 }); c[t.cardholder] += t.amount; }
+  const cats = Object.entries(byCat).map(([c, v]) => ({ c, ...v, sum: v.toshi + v.momoe })).sort((a, b) => b.sum - a.sum);
+  const max = Math.max(...cats.map(c => c.sum), 1);
+  const unknown = r.txs.filter(t => t.category === "その他・不明");
+  return (
+    <div className="card">
+      <div className="top"><b>{r.billing_date ? monthLabel(r.billing_date) : it.name}</b><span className="small">{it.name}</span></div>
+      {r.ok
+        ? <div className="okbox">✅ 検算OK：明細 <b className="num">{r.txs.length}</b>件の合計がご請求金額 <b className="num">{yen(r.total)}</b> と一致しました
+            <ul>{Object.keys(r.subtotal).map(k => <li key={k}>{HOLDERS[k].name}：<span className="num">{r.txs.filter(t => t.cardholder === k).length}</span>件 <span className="num">{yen(r.subtotal[k])}</span></li>)}</ul></div>
+        : <div className="ngbox">❌ 合計が合わないため保存できません<ul>{r.errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
+      {r.warnings.length > 0 && <div className="flag"><ul style={{ margin: 0, paddingLeft: 18 }}>{r.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul></div>}
+
+      {r.txs.length > 0 && <>
+        <div style={{ marginTop: 14, fontSize: 13, fontWeight: 600 }}>振り分けの結果</div>
+        <div style={{ marginTop: 6 }}>
+          {cats.map(c => <div className="catbar" key={c.c}>
+            <div className="n">{c.c}</div>
+            <div className="bar" style={{ background: "none" }}>
+              <span style={{ width: (Math.max(c.toshi, 0) / max * 100) + "%", background: HOLDERS.toshi.color }}></span>
+              <span style={{ width: (Math.max(c.momoe, 0) / max * 100) + "%", background: HOLDERS.momoe.color }}></span>
+            </div>
+            <div className="a">{yen(c.sum)}</div>
+          </div>)}
+        </div>
+        {unknown.length > 0 && <div className="small" style={{ marginTop: 6 }}>「その他・不明」{unknown.length}件：{unknown.map(t => t.merchant).join("、")}</div>}
+        <button className="link" onClick={() => setShowRows(v => !v)}>{showRows ? "明細を閉じる" : `明細${r.txs.length}件を見る`}</button>
+        {showRows && <div className="tbl"><table><thead><tr><th>日付</th><th>店名</th><th>カテゴリ</th><th className="r">金額</th></tr></thead><tbody>
+          {r.txs.map((t, i) => <tr key={i}><td className="num">{md(t.used_on)}<span className="sw" style={{ background: HOLDERS[t.cardholder].color, marginLeft: 4 }}></span></td>
+            <td>{t.merchant}{t.foreign_note && <div className="small">{t.foreign_note}</div>}</td><td className="small">{t.category}</td><td className="r">{yen(t.amount)}</td></tr>)}
+        </tbody></table></div>}
+      </>}
+
+      {it.state === "saved" ? <div className="okbox">保存しました</div> : r.ok && <>
+        {exists && <label className="flag" style={{ display: "block" }}>
+          <input type="checkbox" checked={confirmOverwrite} onChange={e => setConfirmOverwrite(e.target.checked)} style={{ marginRight: 6 }} />
+          この月はすでに登録済みです。<b>上書きする</b>（手で入れた判定・メモは引き継ぎます）
+        </label>}
+        {it.saveError && <div className="ngbox">{it.saveError}</div>}
+        <button className="primary" style={{ width: "100%", marginTop: 12 }} disabled={it.state === "saving" || (exists && !confirmOverwrite)} onClick={onSave}>
+          {it.state === "saving" ? "保存中…" : exists ? "上書きして保存" : "この内容で保存"}
+        </button>
+      </>}
+    </div>
+  );
+}
+
+// ---------- 全体 ----------
+const Icon = {
+  list: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>,
+  upload: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>,
+};
+
+function Main({ session }) {
+  const [me, setMe] = useState(undefined), [statements, setStatements] = useState([]), [stmtId, setStmtId] = useState(null);
+  const [tab, setTab] = useState("tx"), [err, setErr] = useState("");
+  const loadStatements = useCallback(async preferDate => {
+    const { data, error } = await sb.from("card_statements").select("*").order("billing_date", { ascending: false });
+    if (error) { setErr(error.message); return; }
+    setStatements(data);
+    const pick = (preferDate && data.find(s => s.billing_date === preferDate)) || data[0];
+    setStmtId(id => preferDate ? pick && pick.id : (data.some(s => s.id === id) ? id : pick && pick.id));
+  }, []);
+  useEffect(() => {
+    sb.from("card_members").select("*").eq("user_id", session.user.id).maybeSingle().then(({ data, error }) => {
+      if (error) setErr(error.message);
+      setMe(data || null);
+      if (data) loadStatements();
+    });
+  }, [session.user.id]);
+
+  if (me === undefined) return <div className="wrap sub">読み込み中…</div>;
+  if (me === null) return <div className="wrap"><div className="card">このアカウントはまだ登録されていません。としに連絡してください。
+    <div><button className="link" onClick={() => sb.auth.signOut()}>ログアウト</button></div>{err && <div className="ngbox">{err}</div>}</div></div>;
+  const isOwner = me.role === "owner";
+  return (
+    <>
+      <div className="wrap">
+        <div className="top hdr">
+          <h1>カード明細チェック</h1>
+          <span className="who"><span className="sw" style={{ background: HOLDERS[me.cardholder].color }}></span>{me.display_name}
+            <button className="link" onClick={() => sb.auth.signOut()}>ログアウト</button></span>
+        </div>
+        {err && <div className="ngbox">{err}</div>}
+        {tab === "tx" && <Transactions me={me} statements={statements} stmtId={stmtId} setStmtId={setStmtId} />}
+        {tab === "upload" && isOwner && <Upload statements={statements} onSaved={d => loadStatements(d)} />}
+      </div>
+      <div className="ver">{APP_VERSION}</div>
+      <nav className="nav">
+        <button className={tab === "tx" ? "on" : ""} onClick={() => setTab("tx")}>{Icon.list}明細</button>
+        {isOwner && <button className={tab === "upload" ? "on" : ""} onClick={() => setTab("upload")}>{Icon.upload}取り込み</button>}
+      </nav>
+    </>
+  );
+}
+
+function App() {
+  const [session, setSession] = useState(undefined);
+  useEffect(() => {
+    sb.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data } = sb.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => data.subscription.unsubscribe();
+  }, []);
+  if (session === undefined) return null;
+  return session ? <Main key={session.user.id} session={session} /> : <Login />;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
