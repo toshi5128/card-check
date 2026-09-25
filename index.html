@@ -229,7 +229,7 @@ function cardParseStatement(pages){
 }
 </script>
 <script type="text/babel" data-presets="react">
-const APP_VERSION = "2026-09-25-v0.8-snap";
+const APP_VERSION = "2026-09-26-v0.9-del";
 const SB_URL = "https://ckcykbvislsjwvkizkqc.supabase.co";
 const SB_KEY = "sb_publishable_5kDZMBvSMk2Cu8qz8IP9CQ_qWsN1C13"; // 公開用キー。データはRLSで守る
 const sb = supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "card-check-auth" } });
@@ -1064,6 +1064,29 @@ async function saveReceipt({ blob, read, txId, holder, by }) {
   return data;
 }
 
+// 領収書を消す（記録→画像の順。画像だけ残っても害はないが、記録だけ残ると壊れた写真になるため）
+async function deleteReceipt(r) {
+  const { data, error } = await sb.from("card_receipts").delete().eq("id", r.id).select();
+  if (error) throw new Error("削除に失敗：" + error.message);
+  if (!data.length) throw new Error("この領収書は消せません（撮った本人かとしのみ）");
+  if (r.path) await sb.storage.from(RECEIPT_BUCKET).remove([r.path]);
+}
+// 押し間違い防止に2回押し（1回目で「本当に消す？」に変わる）
+function DeleteReceiptBtn({ r, onDone }) {
+  const { setReceipts } = React.useContext(CardCtx);
+  const [ask, setAsk] = useState(false), [busy, setBusy] = useState(false), [err, setErr] = useState("");
+  useEffect(() => { if (!ask) return; const t = setTimeout(() => setAsk(false), 4000); return () => clearTimeout(t); }, [ask]);
+  const go = async () => {
+    if (!ask) { setAsk(true); return; }
+    setBusy(true); setErr("");
+    try { await deleteReceipt(r); setReceipts(rs => rs.filter(x => x.id !== r.id)); onDone && onDone(); }
+    catch (e) { setErr(e.message); setBusy(false); setAsk(false); }
+  };
+  return <><button className="link" style={{ color: "var(--ng)" }} disabled={busy} onClick={go}>
+    {busy ? "削除中…" : ask ? "本当に消す？（もう一度押す）" : "🗑 この領収書を消す"}</button>
+    {err && <div className="ngbox">{err}</div>}</>;
+}
+
 function CandidatePicker({ cands, onPick, busy }) {
   if (!cands.length) return <div className="small">金額・日付が合う明細が見つかりませんでした。下で金額や日付を直すと探し直します。</div>;
   return <div className="cands">{cands.map(t => <button key={t.id} disabled={busy} onClick={() => onPick(t)}>
@@ -1102,7 +1125,7 @@ function ReceiptResolver({ id, read, onLinked }) {
   </div>;
 }
 
-function ReceiptItem({ it }) {
+function ReceiptItem({ it, onRemoved }) {
   const [manual, setManual] = useState(false);
   return <div className="card rcard">
     <div className="rrow">
@@ -1116,6 +1139,7 @@ function ReceiptItem({ it }) {
     </div>
     {it.state === "saved" && (manual ? <ReceiptResolver id={it.id} read={{}} />
       : <button className="link" onClick={() => setManual(true)}>今すぐ自分で金額を入れる</button>)}
+    {it.state === "saved" && <div><DeleteReceiptBtn r={{ id: it.id, path: it.path }} onDone={onRemoved} /></div>}
   </div>;
 }
 
@@ -1128,6 +1152,7 @@ function UnlinkedReceipt({ r }) {
         <div className="small">{new Date(r.created_at).toLocaleDateString("ja-JP")} 取り込み</div></div></div>
     {unread && !manual ? <button className="link" onClick={() => setManual(true)}>自分で金額を入れる</button>
       : <ReceiptResolver id={r.id} read={{ amount: r.read_amount, date: r.read_date }} />}
+    <div><DeleteReceiptBtn r={r} /></div>
   </div>;
 }
 
@@ -1153,7 +1178,7 @@ function Receipts({ me, receipts, setReceipts }) {
         try {
           const saved = await saveReceipt({ blob: im.blob, read: {}, holder: me.cardholder });
           setReceipts(rs => [...rs, saved]);
-          upd(key, { state: "saved", id: saved.id });
+          upd(key, { state: "saved", id: saved.id, path: saved.path });
         } catch (e) { upd(key, { state: "error", error: e.message }); }
       }
     }
@@ -1169,7 +1194,7 @@ function Receipts({ me, receipts, setReceipts }) {
       </div>
       <div className="small" style={{ marginTop: 8 }}><b>撮るだけでOK。</b>金額・日付・店名はあとでまとめて読み取って、カード明細と自動でひも付けます。<b>紙の領収書は今まで通り保管</b>してください（これは探す・確認するための控えです）。</div>
     </div>
-    {items.map(it => <ReceiptItem key={it.key} it={it} />)}
+    {items.map(it => <ReceiptItem key={it.key} it={it} onRemoved={() => setItems(xs => xs.filter(x => x.key !== it.key))} />)}
     {unread.length > 0 && <div className="card"><h2>読み取り待ち（{unread.length}件）</h2>
       <div className="small">{me.role === "owner" ? "PCのClaudeに「領収書片付けて」と言うと、まとめて読み取ってひも付けます。" : "としがまとめて読み取ります。"}</div>
       {unread.map(r => <UnlinkedReceipt key={r.id} r={r} />)}
@@ -1211,7 +1236,7 @@ function TxReceipts({ tx, canEdit }) {
   };
   return <div className="field"><label>領収書</label>
     {mine.length ? <div className="rrow" style={{ flexWrap: "wrap" }}>{mine.map(r => <div key={r.id}><ReceiptThumb path={r.path} big />
-      {canEdit && <button className="link" onClick={() => unlink(r)}>外す</button>}</div>)}</div>
+      {canEdit && <><button className="link" onClick={() => unlink(r)}>外す</button><br /><DeleteReceiptBtn r={r} /></>}</div>)}</div>
       : <div className="small">{needsReceipt(tx) ? "⚠ まだ領収書がありません" : "（明細書だけで足りる支払いです）"}</div>}
     {canEdit && <label className="filebtn b-ask" style={{ marginTop: 8 }}>{busy ? "保存中…" : "📷 この明細に領収書を付ける"}<input type="file" accept="image/*" capture="environment" onChange={add} disabled={busy} /></label>}
     {err && <div className="ngbox">{err}</div>}
